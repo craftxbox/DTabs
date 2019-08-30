@@ -139,8 +139,6 @@
     `
 	let tabtokens = {}
 
-	const contextMenu = require('electron-context-menu');
-
 	$`#injecttoggle`.checked = localStorage.getItem('injectcss') || false
 	$`#injectpath`.textContent = localStorage.getItem('csspath') || "Select file."
 
@@ -244,21 +242,6 @@
 				}
 			})
 			tabinner.addEventListener('dom-ready',()=>{
-				require('electron-context-menu')({
-					window: tabinner,
-					prepend: (params, browserWindow) => [{
-						labels: {
-							cut: 'Configured Cut',
-							copy: 'Configured Copy',
-							paste: 'Configured Paste',
-							save: 'Configured Save Image',
-							copyLink: 'Configured Copy Link',
-							inspect: 'Configured Inspect'
-						},
-						// Only show it when right-clicking images
-						visible: params.mediaType === 'image'
-					}]
-				}); 
 				tabinner.getWebContents().addListener('new-window',(e,url)=>{
 					require("electron").shell.openExternal(url);
 				})

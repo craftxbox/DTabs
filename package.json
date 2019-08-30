@@ -12,10 +12,13 @@
     "pack": "build --dir",
     "dist": "build"
   },
+  "license":"NCMIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/craftxbox/dtabs.git"
+  },
   "dependencies": {
-    "electron-builder": "^21.2.0",
-    "electron-context-menu": "^0.14.0",
-    "electron-notification-shim": "^1.1.0"
+    "electron-builder": "^21.2.0"
   },
   "devDependencies": {
     "electron": "^5.0.0-beta.7"

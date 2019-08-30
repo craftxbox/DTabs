@@ -1,88 +1,6 @@
-const { app, BrowserWindow, session,shell,Menu, MenuItem } = require('electron')
-const contextMenu = require('electron-context-menu');
-
+const { app, BrowserWindow, session,shell} = require('electron')
 
 let mainWindow
-
-const template = [
-  {
-     label: 'Edit',
-     submenu: [
-        {
-           role: 'undo'
-        },
-        {
-           role: 'redo'
-        },
-        {
-           type: 'separator'
-        },
-        {
-           role: 'cut'
-        },
-        {
-           role: 'copy'
-        },
-        {
-           role: 'paste'
-        }
-     ]
-  },
-  
-  {
-     label: 'View',
-     submenu: [
-        {
-           role: 'reload'
-        },
-        {
-           role: 'toggledevtools'
-        },
-        {
-           type: 'separator'
-        },
-        {
-           role: 'resetzoom'
-        },
-        {
-           role: 'zoomin'
-        },
-        {
-           role: 'zoomout'
-        },
-        {
-           type: 'separator'
-        },
-        {
-           role: 'togglefullscreen'
-        }
-     ]
-  },
-  
-  {
-     role: 'window',
-     submenu: [
-        {
-           role: 'minimize'
-        },
-        {
-           role: 'close'
-        }
-     ]
-  },
-  
-  {
-     role: 'help',
-     submenu: [
-        {
-           label: 'Learn More'
-        }
-     ]
-  }
-]
-
-const menu = Menu.buildFromTemplate(template)
-Menu.setApplicationMenu(menu)
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -97,11 +15,6 @@ function createWindow() {
   mainWindow.on('closed', function () {
     mainWindow = null
   })
-  mainWindow.on('contextmenu', (e) => {
-    e.preventDefault()
-    rightClickPosition = {x: e.x, y: e.y}
-    menu.popup(remote.getCurrentWindow())
-  }, false)
   
   mainWindow.loadFile("index.html")
 }
