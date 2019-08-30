@@ -1,6 +1,8 @@
 # DTabs
 Tabbed electron wrapper for discord Web-Client with CSS injections.
 
+Grab the [latest release](https://github.com/craftxbox/DTabs/releases/latest)
+
 # Compiling
 
 1. Download [NodeJS](https://nodejs.org/en/)
