@@ -1,0 +1,30 @@
+{
+  "name": "dtabs",
+  "productName": "DTabs",
+  "description": "Tabbed wrapper for Web Discord clients.",
+  "keywords": [],
+  "main": "./main.js",
+  "version": "1.0.0",
+  "author": "craftxbox",
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "start": "npm install && electron ./",
+    "pack": "build --dir",
+    "dist": "build"
+  },
+  "dependencies": {
+    "electron-builder": "^21.2.0",
+    "electron-context-menu": "^0.14.0",
+    "electron-notification-shim": "^1.1.0"
+  },
+  "devDependencies": {
+    "electron": "^5.0.0-beta.7"
+  },
+  "build": {
+    "appId": "dtabs",
+    "category": "dtabs",
+    "win": {
+      "target": "nsis"
+    }
+  }
+}

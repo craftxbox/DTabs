@@ -1,0 +1,303 @@
+<head>
+	<style>
+		body {
+			background-color: #666;
+			margin: 0px;
+			padding: 0px;
+			min-height: 100%;
+		}
+
+		.topbar {
+			top: 0px;
+			width: 100%;
+			height: 30px;
+			background-color: #444;
+			-webkit-app-region: drag;
+			margin: 0px;
+			padding: 0px;
+			display: flex;
+			flex-flow: row nowrap;
+			justify-content: flex-start;
+		}
+
+		.titlebutton {
+			height: 30px;
+			min-width: 35px;
+			-webkit-app-region: no-drag;
+			text-align: center;
+			font-family: 'Whitney';
+			color: #eee;
+			font-size: 22px;
+			padding-left: 4px;
+			padding-right: 4px;
+		}
+
+		.titlebutton:hover {
+			background-color: #333 !important;
+		}
+
+		.titlebutton.active {
+			background-color: #333;
+		}
+
+		.spacer {
+			margin-left: auto;
+		}
+
+		.mainbody {
+			top: 30px;
+			width: 100%;
+			height: calc(100% - 30px);
+		}
+
+		.tab {
+			display: none;
+			top: 30px;
+			width: 100%;
+			height: 100%;
+		}
+
+		.tab.active {
+			display: block;
+		}
+
+		.settings {
+			display: none;
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(51, 51, 51, 0.7)
+		}
+
+		.settings.active {
+			display: block;
+		}
+
+		.settingsbody {
+			position: fixed;
+			background-color: #666;
+			width: 50vw;
+			height: 70vh;
+			left: 25vw;
+			top: 5vh;
+			padding: 16px;
+			border-radius: 8px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="topbar">
+		<div class="titlebutton" onclick="addtab(false)">
+			+
+		</div>
+		<div class="spacer"></div>
+		<div class="titlebutton settingsbtn" onclick="settings()">
+			⚙️
+		</div>
+		<div class="titlebutton" onclick="require('electron').remote.getCurrentWindow().minimize()">
+			_
+		</div>
+		<div class="titlebutton"
+			onclick="require('electron').remote.getCurrentWindow().isMaximized() ? require('electron').remote.getCurrentWindow().unmaximize() : require('electron').remote.getCurrentWindow().maximize()">
+			☐
+		</div>
+		<div class="titlebutton" onclick="window.close()">
+			X
+		</div>
+	</div>
+	<div class="settings">
+		<div class="settingsbody">
+			<input id="injecttoggle" type="checkbox"
+				onclick="localStorage.setItem('injectcss',$`#injecttoggle`.checked);alert('Changing this setting requires a reload to take effect.')">Inject
+			CSS</input>
+			<button id="injectpath" onclick="csspath()">Select file.</button><br>
+			<select id="deletetabselect">
+
+			</select>
+			<button id="deletetab" onclick="deletetab()">Delete tab.</button>
+		</div>
+	</div>
+	<div class="mainbody">
+	</div>
+</body>
+<script>
+
+	const replytoken = `
+    var oldsetrequestheader = window.XMLHttpRequest.prototype.setRequestHeader
+    window.XMLHttpRequest.prototype.setRequestHeader = function(name, value){
+      if(name == "Authorization"){
+		window.XMLHttpRequest.prototype.setRequestHeader = oldsetrequestheader
+		var xmlHttp = new XMLHttpRequest();
+		xmlHttp.open("GET","https://discordapp.com/api/v6/users/@me",false);
+		xmlHttp.setRequestHeader("Authorization",value)
+		xmlHttp.send(null)
+        console.log("dtabs:"+value+":"+xmlHttp.responseText);
+      }
+      return oldsetrequestheader.apply(this,arguments)
+    }
+    `
+	let tabtokens = {}
+
+	const contextMenu = require('electron-context-menu');
+
+	$`#injecttoggle`.checked = localStorage.getItem('injectcss') || false
+	$`#injectpath`.textContent = localStorage.getItem('csspath') || "Select file."
+
+	function settings() {
+		$`#deletetabselect`.innerHTML = "";
+		for (var i of $(".topbar").children) {
+			if (i.classList.length < 2) continue;
+			if (i.classList[1] == "settingsbtn") continue;
+			var sel = document.createElement("option")
+			sel.setAttribute("value", i.classList[2])
+			sel.textContent = i.innerHTML;
+			$`#deletetabselect`.appendChild(sel)
+		}
+		if ($`.settings.active` != null) {
+			$`.settingsbtn`.classList.remove("active")
+			$`.settings`.classList.remove("active")
+			return
+		}
+		$`.settingsbtn`.classList.add("active")
+		$`.settings`.classList.add("active")
+	}
+
+	function csspath() {
+		const { dialog } = require("electron").remote
+		let e = dialog.showOpenDialog({ properties: ["openFile"] })
+		if (e != null) {
+			localStorage.setItem("csspath", e[0])
+			$`#injectpath`.textContent = localStorage.getItem('csspath') || "Select file."
+		}
+	}
+
+	tabtokens = JSON.parse(localStorage.getItem("tabs")) || {}
+	let tabsuninit = Object.keys(tabtokens)
+
+	function savetabs() {
+		window.localStorage.setItem("tabs", JSON.stringify(tabtokens))
+	}
+	var pastfirsttab = false;
+	function inittabs() {
+		if (tabsuninit.length < 1) return;
+		let i = tabsuninit[0]
+		tabsuninit.splice(0, 1)
+		addtab(true, i,tabtokens[i].split(':')[1])
+		if(!pastfirsttab){
+			activetab(i)
+			pastfirsttab = true;
+		}
+		$("." + i + " webview").addEventListener('dom-ready', function inject() {
+			$("." + i + " webview").removeEventListener('dom-ready', inject)
+			$("." + i + " webview").loadURL("https://discordapp.com/api/")
+			$("." + i + " webview").addEventListener('dom-ready', function inject1() {
+				$("." + i + " webview").removeEventListener('dom-ready', inject1)
+				$("." + i + " webview").addEventListener('dom-ready',()=>{
+					if (localStorage.getItem('injectcss') && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
+						const fs = require("fs");
+						var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
+						$("." + i + " webview").insertCSS(cssfile)
+					}
+				})
+				$("." + i + " webview").executeJavaScript("localStorage.setItem('token','\"" + tabtokens[i].split`:`[0] + "\"');window.location.href='/app'")
+				inittabs()
+				
+			})
+		})
+	}
+
+	function $(selector) {
+		return document.querySelector(selector)
+	}
+
+	function addtab(dirty, name = null,title=null) {
+		let tabbutton = document.createElement("div");
+		let tabs = $(".topbar").children.length - 6
+		tabbutton.classList.add("titlebutton")
+		tabbutton.classList.add("titletab")
+		tabbutton.classList.add("title" + (name != null ? name : "tab" + (tabs + 1)))
+		tabbutton.setAttribute("onclick", ("activetab('" + (name != null ? name : "tab" + (tabs + 1)) + "')"))
+		tabbutton.textContent = (title != null ? title : "Tab #" + (tabs + 1))
+		if(tabs == 0){
+			$(".topbar").innerHTML = tabbutton.outerHTML+$`.topbar`.innerHTML
+		} else {
+			$`.topbar`.children[tabs-1].outerHTML = $`.topbar`.children[tabs-1].outerHTML + tabbutton.outerHTML
+		}
+		let tab = document.createElement("div")
+		let tabinner = document.createElement("webview")
+		tab.classList.add("tab")
+		tab.classList.add(name != null ? name : "tab" + (tabs + 1))
+		tabinner.setAttribute("style", "width:100%;height:100%")
+		tabinner.setAttribute("src", "https://discordapp.com/login")
+		tabinner.setAttribute("webpreferences","nativeWindowOpen=true")
+		tabinner.setAttribute("allowpopups",true)
+		if (dirty == false) {
+			tabinner.addEventListener('dom-ready', () => { tabinner.executeJavaScript(replytoken) })
+			tabinner.addEventListener('console-message', (e) => {
+				if (e.message.startsWith("dtabs:")) {
+					var data = JSON.parse(e.message.split(e.message.split("dtabs:")[1].split(":")[0])[1].substring(1))
+					console.log(data,e.message)
+					tabtokens["t"+data.id] = e.message.split("dtabs:")[1].split(":")[0]+":" + data.username + "#" + data.discriminator
+					$(`.titletab`+(tabs+1)).textContent = data.username+"#"+data.discriminator
+					savetabs()
+				}
+			})
+			tabinner.addEventListener('dom-ready',()=>{
+				require('electron-context-menu')({
+					window: tabinner,
+					prepend: (params, browserWindow) => [{
+						labels: {
+							cut: 'Configured Cut',
+							copy: 'Configured Copy',
+							paste: 'Configured Paste',
+							save: 'Configured Save Image',
+							copyLink: 'Configured Copy Link',
+							inspect: 'Configured Inspect'
+						},
+						// Only show it when right-clicking images
+						visible: params.mediaType === 'image'
+					}]
+				}); 
+				tabinner.getWebContents().addListener('new-window',(e,url)=>{
+					require("electron").shell.openExternal(url);
+				})
+				if (localStorage.getItem('injectcss') && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
+					const fs = require("fs");
+					var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
+					tabinner.insertCSS(cssfile)
+				}
+			})
+		}
+		tab.appendChild(tabinner)
+		$(".mainbody").appendChild(tab)
+		if (dirty == false) activetab((name != null ? name : "tab" + (tabs + 1)))
+	}
+
+	function deletetab() {
+		var i = $`#deletetabselect`.value
+		if (i == "tab1") {
+			alert("Tab 1 cannot be deleted.")
+			return
+		}
+		tabtokens[i.replace("title", "")] = undefined
+		$("." + i).setAttribute("style", "display:none")
+		$(".tab." + i.replace("title", "")).remove()
+
+		savetabs()
+		activetab("tab1")
+	}
+
+	function activetab(no) {
+		if ($(".titlebutton.active") == $(".title"+no))return;
+		try{
+			if ($(".titlebutton.active") != null) $(".titlebutton.active").classList.remove("active")
+			$(".tab.active").classList.remove("active")
+		} catch(e){}
+		$(".title" + no).classList.add("active")
+		$("." + no).classList.add("active")
+	}
+
+	inittabs()
+
+</script>
