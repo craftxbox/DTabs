@@ -4,6 +4,6 @@ Tabbed electron wrapper for discord Web-Client with CSS injections.
 # Compiling
 
 1. Download [NodeJS](https://nodejs.org/en/)
-2. Run `npm install; npm i electron-builder -g` 
+2. Run `npm install; npm i electron-packager -g` 
 3. Run `electron-packager --out ./build/`
 4. Complete, open DTabs.exe in the build folder to run.
