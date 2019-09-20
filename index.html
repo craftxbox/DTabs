@@ -5,6 +5,7 @@
 			margin: 0px;
 			padding: 0px;
 			min-height: 100%;
+			overflow:hidden;
 		}
 
 		.topbar {
@@ -12,12 +13,12 @@
 			width: 100%;
 			height: 30px;
 			background-color: #444;
-			-webkit-app-region: drag;
 			margin: 0px;
 			padding: 0px;
 			display: flex;
 			flex-flow: row nowrap;
 			justify-content: flex-start;
+			transition: height 0.5s;
 		}
 
 		.titlebutton {
@@ -31,7 +32,7 @@
 			padding-left: 4px;
 			padding-right: 4px;
 		}
-
+		
 		.titlebutton:hover {
 			background-color: #333 !important;
 		}
@@ -41,13 +42,18 @@
 		}
 
 		.spacer {
-			margin-left: auto;
+			/*margin-left:auto;*/
+			height:30px;
+			flex-grow:100;
+			display:inline-block;
+			-webkit-app-region: drag;
 		}
 
 		.mainbody {
 			top: 30px;
 			width: 100%;
 			height: calc(100% - 30px);
+			transition: height 0.5s;
 		}
 
 		.tab {
@@ -83,15 +89,30 @@
 			padding: 16px;
 			border-radius: 8px;
 		}
+		.rolldownbtn{
+			position:fixed;
+			display:none;
+			top:4px;
+			right:370px;
+			z-index:9999;
+			font-size:32px;
+			color:#eee;
+		}
+		.topbar:hover{
+			height:30px !important;
+		}
 	</style>
 </head>
 
 <body>
 	<div class="topbar">
-		<div class="titlebutton" onclick="addtab(false)">
+		<div class="titlebutton" id="addtab" onclick="addtab(false)">
 			+
 		</div>
-		<div class="spacer"></div>
+		<div class="spacer" onclick="alert('Dragging is not possible while titlebar is rolled up.')"></div>
+		<div class="titlebutton rollupbtn" onclick="rollup()">
+			▲
+		</div>
 		<div class="titlebutton settingsbtn" onclick="settings()">
 			⚙️
 		</div>
@@ -109,13 +130,17 @@
 	<div class="settings">
 		<div class="settingsbody">
 			<input id="injecttoggle" type="checkbox"
-				onclick="localStorage.setItem('injectcss',$`#injecttoggle`.checked);alert('Changing this setting requires a reload to take effect.')">Inject
+				onclick="localStorage.setItem('injectcss',$('#injecttoggle').checked);alert('Changing this setting requires a reload to take effect.')">Inject
 			CSS</input>
 			<button id="injectpath" onclick="csspath()">Select file.</button><br>
-			<select id="deletetabselect">
+			<select id="tabselect">
 
 			</select>
+			<button id="inspecttab" onclick="inspecttab()">Open Devtools.</button>
 			<button id="deletetab" onclick="deletetab()">Delete tab.</button>
+			<br>
+			<input id="locktabs" type="checkbox"
+				onclick="localStorage.setItem('tablock',$('#locktabs').checked);lockTabs($('#locktabs').checked)">Lock tabs.</input>
 		</div>
 	</div>
 	<div class="mainbody">
@@ -139,18 +164,47 @@
     `
 	let tabtokens = {}
 
-	$`#injecttoggle`.checked = localStorage.getItem('injectcss') || false
+	$`#injecttoggle`.checked = localStorage.getItem('injectcss') == 'true'
+	$`#locktabs`.checked = localStorage.getItem('tablock') == 'true'
 	$`#injectpath`.textContent = localStorage.getItem('csspath') || "Select file."
+	lockTabs(localStorage.getItem('tablock') == 'true');
+
+	function lockTabs(lock){
+		if(lock) {
+			$`#addtab`.style = "display:none;"
+			$`#deletetab`.style = "display:none;"
+		}
+		else {
+			$`#addtab`.style = "display:block;"
+			$`#deletetab`.style = "display:block;"
+		}
+	}
+
+	function rollup(){
+		$`.topbar`.style = "height:2px;"
+		$`.rollupbtn`.setAttribute("onclick","rolldown()")
+		$`.rollupbtn`.textContent = '▼';
+		$`.mainbody`.style="height: calc(100% - 2px);"
+		$`.spacer`.style="-webkit-app-region: no-drag;"
+	}
+
+	function rolldown(){
+		$`.topbar`.style = ""
+		$`.rollupbtn`.setAttribute("onclick","rollup()")
+		$`.rollupbtn`.textContent = '▲';
+		$`.mainbody`.style=""
+		$`.spacer`.style=""
+	}
 
 	function settings() {
-		$`#deletetabselect`.innerHTML = "";
+		$`#tabselect`.innerHTML = "";
 		for (var i of $(".topbar").children) {
 			if (i.classList.length < 2) continue;
 			if (i.classList[1] == "settingsbtn") continue;
 			var sel = document.createElement("option")
 			sel.setAttribute("value", i.classList[2])
 			sel.textContent = i.innerHTML;
-			$`#deletetabselect`.appendChild(sel)
+			$`#tabselect`.appendChild(sel)
 		}
 		if ($`.settings.active` != null) {
 			$`.settingsbtn`.classList.remove("active")
@@ -192,7 +246,7 @@
 			$("." + i + " webview").addEventListener('dom-ready', function inject1() {
 				$("." + i + " webview").removeEventListener('dom-ready', inject1)
 				$("." + i + " webview").addEventListener('dom-ready',()=>{
-					if (localStorage.getItem('injectcss') && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
+					if (localStorage.getItem('injectcss') == 'true' && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
 						const fs = require("fs");
 						var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
 						$("." + i + " webview").insertCSS(cssfile)
@@ -210,8 +264,12 @@
 	}
 
 	function addtab(dirty, name = null,title=null) {
+		if(!dirty && localStorage.getItem('tablock') == 'true') {
+			alert("Tabs are locked. Please unlock before attempting to add another tab.")
+			return "Tabs are locked. Please unlock before attempting to add another tab."
+		}
 		let tabbutton = document.createElement("div");
-		let tabs = $(".topbar").children.length - 6
+		let tabs = $(".topbar").children.length - 7
 		tabbutton.classList.add("titlebutton")
 		tabbutton.classList.add("titletab")
 		tabbutton.classList.add("title" + (name != null ? name : "tab" + (tabs + 1)))
@@ -245,7 +303,7 @@
 				tabinner.getWebContents().addListener('new-window',(e,url)=>{
 					require("electron").shell.openExternal(url);
 				})
-				if (localStorage.getItem('injectcss') && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
+				if (localStorage.getItem('injectcss') == 'true' && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
 					const fs = require("fs");
 					var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
 					tabinner.insertCSS(cssfile)
@@ -258,17 +316,26 @@
 	}
 
 	function deletetab() {
-		var i = $`#deletetabselect`.value
+		if(!dirty && localStorage.getItem('tablock') == 'true') {
+			alert("Tabs are locked. Please unlock before attempting to delete a tab.")
+			return "Tabs are locked. Please unlock before attempting to delete a tab."
+		}
+		var i = $`#tabselect`.value
 		if (i == "tab1") {
 			alert("Tab 1 cannot be deleted.")
 			return
 		}
 		tabtokens[i.replace("title", "")] = undefined
-		$("." + i).setAttribute("style", "display:none")
+		$("." + i).remove()
 		$(".tab." + i.replace("title", "")).remove()
 
 		savetabs()
-		activetab("tab1")
+	}
+
+	function inspecttab() {
+		var i = $`#tabselect`.value
+		var webview = $("."+i.replace("title","")+" webview")
+		webview.openDevTools()
 	}
 
 	function activetab(no) {
