@@ -1,5 +1,19 @@
 <head>
 	<style>
+
+		*{
+			font-family: 'Whitney','Arial';
+			color:#fff;
+		}
+
+		button,input,select{
+			color:#000;
+		}
+
+		p {
+			margin:0px;
+		}
+
 		body {
 			background-color: #666;
 			margin: 0px;
@@ -26,7 +40,6 @@
 			min-width: 35px;
 			-webkit-app-region: no-drag;
 			text-align: center;
-			font-family: 'Whitney','Arial';
 			color: #eee;
 			font-size: 22px;
 			padding-left: 4px;
@@ -90,6 +103,29 @@
 			border-radius: 8px;
 		}
 
+		.updatedialog {
+			display: none;
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(51, 51, 51, 0.7);
+            z-index:99999;
+		}
+
+		.updatedialog.active {
+			display: block;
+		}
+
+		.updatedialogbody {
+			position: fixed;
+			background-color: #666;
+			width: 26vw;
+			left: 37vw;
+			top: 45vh;
+			padding: 16px;
+			border-radius: 8px;
+		}
+
 		.rolldownbtn {
 			position: fixed;
 			display: none;
@@ -102,6 +138,30 @@
 
 		.topbar:hover {
 			height: 30px !important;
+		}
+
+		.buttoncontainer{
+			display:flex;
+			flex-flow:row nowrap;
+			justify-content: center;
+		}
+
+		.button{
+			flex: 1 1 0;
+			display:flex;
+			border-radius: 8px;
+			height: 40px;
+			margin: 0px 4px;
+			padding:4px;
+			background-color:#888;
+			justify-content: center;
+			align-items:center;
+			font-size:20px;
+		}
+		.updatetext{
+			font-size: 20px;
+			margin-top:0px;
+			margin-bottom:8px;
 		}
 	</style>
 </head>
@@ -147,12 +207,23 @@
 			tabs</input>
 		</div>
 	</div>
+	<div class="updatedialog">
+		<div class="updatedialogbody">
+			<p class="updatetext">An update for DTabs is available, would you like to apply it?</p>
+			<div class="buttoncontainer">
+				<div class="button" onclick="update()"><p>Yes</p></div>
+				<div class="button" onclick="dismissupdate(false)"><p>No</p></div>
+				<div class="button" onclick="dismissupdate(true)"><p>Never</p></div>
+			</div>
+		</div>
+	</div>
 	<div class="mainbody">
 	</div>
 </body>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-	const VERSION="VERSION=0;";
-	
+	const VERSION="VERSION=1;";
+
 	var $ = document.querySelector.bind(document)
 	var $$ = document.querySelectorAll.bind(document)
 
@@ -171,8 +242,9 @@
     }
     `
 	let tabtokens = {}
-
 	let csskeys = {};
+
+	const fs = require("fs");
 
 	$`#injecttoggle`.checked = localStorage.getItem('injectcss') == 'true'
 	$`#locktabs`.checked = localStorage.getItem('tablock') == 'true'
@@ -225,6 +297,52 @@
 		$`.settings`.classList.add("active")
 	}
 
+	//autoupdater
+	setInterval(updatecheck,10800000)
+
+	var updatecontents = "";
+	var checkdisabled = false;
+	var verregex = /VERSION=(\d)+;/;
+	var instance = axios.create({
+		validateStatus: a => {
+			return true;
+		}
+	});
+
+	function updatecheck(noprompt){
+		if(checkdisabled) return;
+		instance.get("https://raw.githubusercontent.com/craftxbox/DTabs/master/index.html").then(function(response){
+			if(response.status != 200 && !checkdisabled){
+				checkdisabled = true;
+				alert("DTabs was unable to check for updates!")
+				return;
+			}
+			updatecontents = response.data;
+			if(!verregex.test(updatecontents)) return;
+			if(updatecontents.match(verregex)[1] > VERSION.match(verregex)[1]){
+				console.log("DTabs found an update! Upstream Version:",updatecontents.match(verregex)[1])
+				if(!noprompt) $`.updatedialog`.classlist.add("active");
+			} else{
+				console.log("DTabs did not find an update. Upstream Version:",updatecontents.match(verregex)[1])
+			}
+		})
+	}	
+	
+	function update(){
+        $`.updatedialog`.classList.add("active")
+        $`.updatedialogbody`.setAttribute("style","display:none;")
+        updatecheck(true);
+		fs.renameSync("./resources/app/index.html","./resources/app/index.html.OLD-"+Date.now());
+		fs.writeFileSync("./resources/app/index.html",updatecontents,"utf8");
+		alert("Update has been applied, DTabs will now exit.");
+		window.close();
+	}
+
+	function dismissupdate(dontask){
+		checkdisabled = dontask;
+		$`.updatedialog`.classlist.remove("active");
+	}
+
 	function csspath(reload = false) {
 		if (!reload) {
 			const { dialog } = require("electron").remote
@@ -235,7 +353,6 @@
 			}
 		}
 		if (localStorage.getItem('injectcss') == 'true' && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
-			const fs = require("fs");
 			var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
 			for (var i of $$("webview")) {
 				i.executeJavaScript(`document.querySelector('.DTABSCSS') != null ? document.head.removeChild(document.querySelector('.DTABSCSS')) : null;
@@ -257,6 +374,7 @@
 	async function inittabs() {
 		if (tabsuninit.length < 1) {
 			csspath(true);
+			updatecheck();
 			return;
 		};
 		let i = tabsuninit[0]
