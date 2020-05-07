@@ -5,7 +5,7 @@
 			margin: 0px;
 			padding: 0px;
 			min-height: 100%;
-			overflow:hidden;
+			overflow: hidden;
 		}
 
 		.topbar {
@@ -32,7 +32,7 @@
 			padding-left: 4px;
 			padding-right: 4px;
 		}
-		
+
 		.titlebutton:hover {
 			background-color: #333 !important;
 		}
@@ -43,9 +43,9 @@
 
 		.spacer {
 			/*margin-left:auto;*/
-			height:30px;
-			flex-grow:100;
-			display:inline-block;
+			height: 30px;
+			flex-grow: 100;
+			display: inline-block;
 			-webkit-app-region: drag;
 		}
 
@@ -89,17 +89,19 @@
 			padding: 16px;
 			border-radius: 8px;
 		}
-		.rolldownbtn{
-			position:fixed;
-			display:none;
-			top:4px;
-			right:370px;
-			z-index:9999;
-			font-size:32px;
-			color:#eee;
+
+		.rolldownbtn {
+			position: fixed;
+			display: none;
+			top: 4px;
+			right: 370px;
+			z-index: 9999;
+			font-size: 32px;
+			color: #eee;
 		}
-		.topbar:hover{
-			height:30px !important;
+
+		.topbar:hover {
+			height: 30px !important;
 		}
 	</style>
 </head>
@@ -109,7 +111,7 @@
 		<div class="titlebutton" id="addtab" onclick="addtab(false)">
 			+
 		</div>
-		<div class="spacer" onclick="alert('Dragging is not possible while titlebar is rolled up.')"></div>
+		<div class="spacer" onclick=""></div>
 		<div class="titlebutton rollupbtn" onclick="rollup()">
 			▲
 		</div>
@@ -132,15 +134,17 @@
 			<input id="injecttoggle" type="checkbox"
 				onclick="localStorage.setItem('injectcss',$('#injecttoggle').checked);alert('Changing this setting requires a reload to take effect.')">Inject
 			CSS</input>
-			<button id="injectpath" onclick="csspath()">Select file.</button><br>
+			<button id="injectpath" onclick="csspath()">Select file</button>
+			<button id="injectpath" onclick="csspath(true)">Reload CSS</button><br>
 			<select id="tabselect">
 
 			</select>
-			<button id="inspecttab" onclick="inspecttab()">Open Devtools.</button>
-			<button id="deletetab" onclick="deletetab()">Delete tab.</button>
+			<button id="inspecttab" onclick="inspecttab()">Open Devtools</button>
+			<button id="deletetab" onclick="deletetab()">Delete tab</button>
 			<br>
 			<input id="locktabs" type="checkbox"
-				onclick="localStorage.setItem('tablock',$('#locktabs').checked);lockTabs($('#locktabs').checked)">Lock tabs.</input>
+				onclick="localStorage.setItem('tablock',$('#locktabs').checked);lockTabs($('#locktabs').checked)">Lock
+			tabs</input>
 		</div>
 	</div>
 	<div class="mainbody">
@@ -148,10 +152,13 @@
 </body>
 <script>
 
+	var $ = document.querySelector.bind(document)
+	var $$ = document.querySelectorAll.bind(document)
+
 	const replytoken = `
     var oldsetrequestheader = window.XMLHttpRequest.prototype.setRequestHeader
     window.XMLHttpRequest.prototype.setRequestHeader = function(name, value){
-      if(name == "Authorization"){
+      if(name == "Authorization" && value != null){
 		window.XMLHttpRequest.prototype.setRequestHeader = oldsetrequestheader
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.open("GET","https://discordapp.com/api/v6/users/@me",false);
@@ -164,13 +171,15 @@
     `
 	let tabtokens = {}
 
+	let csskeys = {};
+
 	$`#injecttoggle`.checked = localStorage.getItem('injectcss') == 'true'
 	$`#locktabs`.checked = localStorage.getItem('tablock') == 'true'
-	$`#injectpath`.textContent = localStorage.getItem('csspath') || "Select file."
+	$`#injectpath`.textContent = localStorage.getItem('csspath') || "Select file"
 	lockTabs(localStorage.getItem('tablock') == 'true');
 
-	function lockTabs(lock){
-		if(lock) {
+	function lockTabs(lock) {
+		if (lock) {
 			$`#addtab`.style = "display:none;"
 			$`#deletetab`.style = "display:none;"
 		}
@@ -180,27 +189,27 @@
 		}
 	}
 
-	function rollup(){
+	function rollup() {
 		$`.topbar`.style = "height:2px;"
-		$`.rollupbtn`.setAttribute("onclick","rolldown()")
+		$`.rollupbtn`.setAttribute("onclick", "rolldown()")
 		$`.rollupbtn`.textContent = '▼';
-		$`.mainbody`.style="height: calc(100% - 2px);"
-		$`.spacer`.style="-webkit-app-region: no-drag;"
+		$`.mainbody`.style = "height: calc(100% - 2px);"
+		$`.spacer`.style = "-webkit-app-region: no-drag;"
 	}
 
-	function rolldown(){
+	function rolldown() {
 		$`.topbar`.style = ""
-		$`.rollupbtn`.setAttribute("onclick","rollup()")
+		$`.rollupbtn`.setAttribute("onclick", "rollup()")
 		$`.rollupbtn`.textContent = '▲';
-		$`.mainbody`.style=""
-		$`.spacer`.style=""
+		$`.mainbody`.style = ""
+		$`.spacer`.style = ""
 	}
 
 	function settings() {
 		$`#tabselect`.innerHTML = "";
 		for (var i of $(".topbar").children) {
 			if (i.classList.length < 2) continue;
-			if (i.classList[1] == "settingsbtn") continue;
+			if (i.classList[1] == "settingsbtn" || i.classList[1] == "rollupbtn") continue;
 			var sel = document.createElement("option")
 			sel.setAttribute("value", i.classList[2])
 			sel.textContent = i.innerHTML;
@@ -215,12 +224,25 @@
 		$`.settings`.classList.add("active")
 	}
 
-	function csspath() {
-		const { dialog } = require("electron").remote
-		let e = dialog.showOpenDialog({ properties: ["openFile"] })
-		if (e != null) {
-			localStorage.setItem("csspath", e[0])
-			$`#injectpath`.textContent = localStorage.getItem('csspath') || "Select file."
+	function csspath(reload = false) {
+		if (!reload) {
+			const { dialog } = require("electron").remote
+			let e = dialog.showOpenDialog({ properties: ["openFile"] })
+			if (e != null) {
+				localStorage.setItem("csspath", e[0])
+				$`#injectpath`.textContent = localStorage.getItem('csspath') || "Select file"
+			}
+		}
+		if (localStorage.getItem('injectcss') == 'true' && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
+			const fs = require("fs");
+			var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
+			for (var i of $$("webview")) {
+				i.executeJavaScript(`document.querySelector('.DTABSCSS') != null ? document.head.removeChild(document.querySelector('.DTABSCSS')) : null;
+							var style = document.createElement('style');
+							style.setAttribute('class','DTABSCSS');
+							style.appendChild(document.createTextNode(\`${cssfile.replace(/[\n`]/g, "")}\`));
+							document.querySelector('head').appendChild(style)`)
+			}
 		}
 	}
 
@@ -231,40 +253,33 @@
 		window.localStorage.setItem("tabs", JSON.stringify(tabtokens))
 	}
 	var pastfirsttab = false;
-	function inittabs() {
-		if (tabsuninit.length < 1) return;
+	async function inittabs() {
+		if (tabsuninit.length < 1) {
+			csspath(true);
+			return;
+		};
 		let i = tabsuninit[0]
 		tabsuninit.splice(0, 1)
-		addtab(true, i,tabtokens[i].split(':')[1])
-		if(!pastfirsttab){
+		addtab(true, i, tabtokens[i].split(':')[1])
+		if (!pastfirsttab) {
 			activetab(i)
 			pastfirsttab = true;
 		}
-		$("." + i + " webview").addEventListener('dom-ready', function inject() {
-			$("." + i + " webview").removeEventListener('dom-ready', inject)
-			$("." + i + " webview").loadURL("https://discordapp.com/api/")
-			$("." + i + " webview").addEventListener('dom-ready', function inject1() {
-				$("." + i + " webview").removeEventListener('dom-ready', inject1)
-				$("." + i + " webview").addEventListener('dom-ready',()=>{
-					if (localStorage.getItem('injectcss') == 'true' && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
-						const fs = require("fs");
-						var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
-						$("." + i + " webview").insertCSS(cssfile)
-					}
-				})
-				$("." + i + " webview").executeJavaScript("localStorage.setItem('token','\"" + tabtokens[i].split`:`[0] + "\"');window.location.href='/app'")
+		view = $("." + i + " webview")
+		view.addEventListener('dom-ready', function inject() {
+			view.removeEventListener('dom-ready', inject)
+			view.loadURL("https://discordapp.com/api/")
+			view.addEventListener('dom-ready', function inject1() {
+				view.removeEventListener('dom-ready', inject1)
+				view.executeJavaScript("localStorage.setItem('token','\"" + tabtokens[i].split`:`[0] + "\"');window.location.href='/app'")
 				inittabs()
-				
+
 			})
 		})
 	}
 
-	function $(selector) {
-		return document.querySelector(selector)
-	}
-
-	function addtab(dirty, name = null,title=null) {
-		if(!dirty && localStorage.getItem('tablock') == 'true') {
+	function addtab(dirty, name = null, title = null) {
+		if (!dirty && localStorage.getItem('tablock') == 'true') {
 			alert("Tabs are locked. Please unlock before attempting to add another tab.")
 			return "Tabs are locked. Please unlock before attempting to add another tab."
 		}
@@ -275,10 +290,10 @@
 		tabbutton.classList.add("title" + (name != null ? name : "tab" + (tabs + 1)))
 		tabbutton.setAttribute("onclick", ("activetab('" + (name != null ? name : "tab" + (tabs + 1)) + "')"))
 		tabbutton.textContent = (title != null ? title : "Tab #" + (tabs + 1))
-		if(tabs == 0){
-			$(".topbar").innerHTML = tabbutton.outerHTML+$`.topbar`.innerHTML
+		if (tabs == 0) {
+			$(".topbar").innerHTML = tabbutton.outerHTML + $`.topbar`.innerHTML
 		} else {
-			$`.topbar`.children[tabs-1].outerHTML = $`.topbar`.children[tabs-1].outerHTML + tabbutton.outerHTML
+			$`.topbar`.children[tabs - 1].outerHTML = $`.topbar`.children[tabs - 1].outerHTML + tabbutton.outerHTML
 		}
 		let tab = document.createElement("div")
 		let tabinner = document.createElement("webview")
@@ -286,27 +301,29 @@
 		tab.classList.add(name != null ? name : "tab" + (tabs + 1))
 		tabinner.setAttribute("style", "width:100%;height:100%")
 		tabinner.setAttribute("src", "https://discordapp.com/login")
-		tabinner.setAttribute("webpreferences","nativeWindowOpen=true")
-		tabinner.setAttribute("allowpopups",true)
+		tabinner.setAttribute("webpreferences", "nativeWindowOpen=true")
+		tabinner.setAttribute("allowpopups", true)
+		tabinner.setAttribute("plugins", true);
+		tabinner.setAttribute("partition", "persist:" + (name != null ? name : "tab" + (tabs + 1)));
 		if (dirty == false) {
-			tabinner.addEventListener('dom-ready', () => { tabinner.executeJavaScript(replytoken) })
+			tabinner.addEventListener('dom-ready', () => {
+				tabinner.executeJavaScript(replytoken)
+			})
 			tabinner.addEventListener('console-message', (e) => {
 				if (e.message.startsWith("dtabs:")) {
 					var data = JSON.parse(e.message.split(e.message.split("dtabs:")[1].split(":")[0])[1].substring(1))
-					console.log(data,e.message)
-					tabtokens["t"+data.id] = e.message.split("dtabs:")[1].split(":")[0]+":" + data.username + "#" + data.discriminator
-					$(`.titletab`+(tabs+1)).textContent = data.username+"#"+data.discriminator
+					console.log(data, e.message)
+					tabtokens["t" + data.id] = e.message.split("dtabs:")[1].split(":")[0] + ":" + data.username + "#" + data.discriminator
+					$(`.titletab` + (tabs + 1)).textContent = data.username + "#" + data.discriminator
 					savetabs()
 				}
 			})
-			tabinner.addEventListener('dom-ready',()=>{
-				tabinner.getWebContents().addListener('new-window',(e,url)=>{
+			tabinner.addEventListener('dom-ready', () => {
+				tabinner.getWebContents().addListener('new-window', (e, url) => {
 					require("electron").shell.openExternal(url);
 				})
 				if (localStorage.getItem('injectcss') == 'true' && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
-					const fs = require("fs");
-					var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
-					tabinner.insertCSS(cssfile)
+					csspath(true)
 				}
 			})
 		}
@@ -316,17 +333,17 @@
 	}
 
 	function deletetab() {
-		if(!dirty && localStorage.getItem('tablock') == 'true') {
+		if (localStorage.getItem('tablock') == 'true') {
 			alert("Tabs are locked. Please unlock before attempting to delete a tab.")
 			return "Tabs are locked. Please unlock before attempting to delete a tab."
 		}
 		var i = $`#tabselect`.value
-		if (i == "tab1") {
-			alert("Tab 1 cannot be deleted.")
-			return
-		}
 		tabtokens[i.replace("title", "")] = undefined
-		$("." + i).remove()
+		var { session } = require("electron").remote;
+		session.fromPartition($("." + i.replace("title", "") + " webview").getAttribute("partition")).clearStorageData({storages:[
+			"appcache","cache","cookies","sessionCookies","persistentCookies","fileSystems","indexedDB","localStorage", "webSQL"]
+		});
+		$("." + i).remove();
 		$(".tab." + i.replace("title", "")).remove()
 
 		savetabs()
@@ -334,16 +351,16 @@
 
 	function inspecttab() {
 		var i = $`#tabselect`.value
-		var webview = $("."+i.replace("title","")+" webview")
+		var webview = $("." + i.replace("title", "") + " webview")
 		webview.openDevTools()
 	}
 
 	function activetab(no) {
-		if ($(".titlebutton.active") == $(".title"+no))return;
-		try{
+		if ($(".titlebutton.active") == $(".title" + no)) return;
+		try {
 			if ($(".titlebutton.active") != null) $(".titlebutton.active").classList.remove("active")
 			$(".tab.active").classList.remove("active")
-		} catch(e){}
+		} catch (e) { }
 		$(".title" + no).classList.add("active")
 		$("." + no).classList.add("active")
 	}
