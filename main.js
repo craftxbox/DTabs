@@ -1,5 +1,6 @@
 const { app, BrowserWindow, session,shell,dialog} = require('electron')
 const fs = require("fs");
+const path = require("path");
 
 let mainWindow
 
@@ -16,9 +17,9 @@ function createWindow() {
   mainWindow.on('closed', function () {
     mainWindow = null
   })
-  
-  if(!fs.existsSync("./resources/app/index.html")){
-    var files = fs.readdirSync("./resources/app");
+
+  if(!fs.existsSync(path.resolve(__dirname, "index.html"))) {
+    var files = fs.readdirSync(__dirname);
     var times = [];
     var timeextractor = /index.html.OLD-(\d+)/;
     for(var name of files){
@@ -34,7 +35,7 @@ function createWindow() {
       return;
     }
     times.sort((a,b)=>{return b-a;});
-    fs.renameSync("./resources/app/index.html.OLD-"+times[0],"./resources/app/index.html")
+    fs.renameSync(path.resolve(__dirname, "index.html.OLD-"+times[0]), path.resolve(__dirname,"index.html"))
     dialog.showMessageBox({type:"warning",title:"DTabs Warning",
         message:"WARNING: index.html was missing but DTabs found and reverted an update!\nThis may indicate a failed update or install corruption.\nIf you experience any issues reinstall DTabs!"})
   }
