@@ -234,10 +234,10 @@
 </body>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-	const VERSION = "VERSION=4;";
+	const VERSION = "VERSION=5;";
 
 	var $ = document.querySelector.bind(document)
-	var $$ = document.querySelectorAll.bind(document)
+	var $$ = document.querySelectorAll.bind(document)tabbaseuri != null ? tabbaseuri : baseuri
 
 	var baseuri = localStorage.getItem("baseuri") || "https://discord.com";
 
@@ -468,7 +468,7 @@
 				if (e.message.startsWith("dtabs:")) {
 					var data = JSON.parse(e.message.split(e.message.split("dtabs:")[1].split(":")[0])[1].substring(1))
 					console.log(data, e.message)
-					tabtokens["t" + data.id] = e.message.split("dtabs:")[1].split(":")[0] + ":" + data.username + "#" + data.discriminator + ":" + tabbaseuri || baseuri
+					tabtokens["t" + data.id] = e.message.split("dtabs:")[1].split(":")[0] + ":" + data.username + "#" + data.discriminator + ":" + tabbaseuri != null ? tabbaseuri : baseuri
 					$(`.titletab` + (tabs + 1)).textContent = data.username + "#" + data.discriminator
 					savetabs()
 				}
