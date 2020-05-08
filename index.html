@@ -1,17 +1,18 @@
 <head>
 	<style>
-
-		*{
-			font-family: 'Whitney','Arial';
-			color:#fff;
+		* {
+			font-family: 'Whitney', 'Arial';
+			color: #fff;
 		}
 
-		button,input,select{
-			color:#000;
+		button,
+		input,
+		select {
+			color: #000;
 		}
 
 		p {
-			margin:0px;
+			margin: 0px;
 		}
 
 		body {
@@ -109,7 +110,7 @@
 			width: 100%;
 			height: 100%;
 			background-color: rgba(51, 51, 51, 0.7);
-            z-index:99999;
+			z-index: 99999;
 		}
 
 		.updatedialog.active {
@@ -140,28 +141,29 @@
 			height: 30px !important;
 		}
 
-		.buttoncontainer{
-			display:flex;
-			flex-flow:row nowrap;
+		.buttoncontainer {
+			display: flex;
+			flex-flow: row nowrap;
 			justify-content: center;
 		}
 
-		.button{
+		.button {
 			flex: 1 1 0;
-			display:flex;
+			display: flex;
 			border-radius: 8px;
 			height: 40px;
 			margin: 0px 4px;
-			padding:4px;
-			background-color:#888;
+			padding: 4px;
+			background-color: #888;
 			justify-content: center;
-			align-items:center;
-			font-size:20px;
-		}
-		.updatetext{
+			align-items: center;
 			font-size: 20px;
-			margin-top:0px;
-			margin-bottom:8px;
+		}
+
+		.updatetext {
+			font-size: 20px;
+			margin-top: 0px;
+			margin-bottom: 8px;
 		}
 	</style>
 </head>
@@ -196,10 +198,14 @@
 			CSS</input>
 			<button id="injectpath" onclick="csspath()">Select file</button>
 			<button id="injectpath" onclick="csspath(true)">Reload CSS</button><br>
+			<input id="baseuriinput" type="text" placeholder="https://discord.com"></input>
+			<button id="changebaseuri" onclick="changeBaseUri()">Change Base URI</button><br />
 			<select id="tabselect">
 
 			</select>
-			<button id="inspecttab" onclick="inspecttab()">Open Devtools</button>
+			<button id="inspecttab" onclick="inspecttab()">Open Devtools</button><br />
+			<input id="tabbaseuriinput" type="text" placeholder="https://discord.com"></input>
+			<button id="changetabbaseuri" onclick="changeTabBaseUri()">Change Tab Base URI</button>
 			<button id="deletetab" onclick="deletetab()">Delete tab</button>
 			<br>
 			<input id="locktabs" type="checkbox"
@@ -211,9 +217,15 @@
 		<div class="updatedialogbody">
 			<p class="updatetext">An update for DTabs is available, would you like to apply it?</p>
 			<div class="buttoncontainer">
-				<div class="button" onclick="update()"><p>Yes</p></div>
-				<div class="button" onclick="dismissupdate(false)"><p>No</p></div>
-				<div class="button" onclick="dismissupdate(true)"><p>Never</p></div>
+				<div class="button" onclick="update()">
+					<p>Yes</p>
+				</div>
+				<div class="button" onclick="dismissupdate(false)">
+					<p>No</p>
+				</div>
+				<div class="button" onclick="dismissupdate(true)">
+					<p>Never</p>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -222,10 +234,12 @@
 </body>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-	const VERSION="VERSION=2;";
+	const VERSION = "VERSION=3;";
 
 	var $ = document.querySelector.bind(document)
 	var $$ = document.querySelectorAll.bind(document)
+
+	var baseuri = localStorage.getItem("baseuri") || "https://discord.com";
 
 	const replytoken = `
     var oldsetrequestheader = window.XMLHttpRequest.prototype.setRequestHeader
@@ -233,7 +247,7 @@
       if(name == "Authorization" && value != null){
 		window.XMLHttpRequest.prototype.setRequestHeader = oldsetrequestheader
 		var xmlHttp = new XMLHttpRequest();
-		xmlHttp.open("GET","https://discordapp.com/api/v6/users/@me",false);
+		xmlHttp.open("GET","baseuri/api/v6/users/@me",false);
 		xmlHttp.setRequestHeader("Authorization",value)
 		xmlHttp.send(null)
         console.log("dtabs:"+value+":"+xmlHttp.responseText);
@@ -299,7 +313,7 @@
 	}
 
 	//autoupdater
-	setInterval(updatecheck,10800000)
+	setInterval(updatecheck, 10800000)
 
 	var updatecontents = "";
 	var checkdisabled = false;
@@ -310,38 +324,53 @@
 		}
 	});
 
-	function updatecheck(noprompt){
-		if(checkdisabled) return;
-		instance.get("https://raw.githubusercontent.com/craftxbox/DTabs/master/index.html").then(function(response){
-			if(response.status != 200 && !checkdisabled){
+	function updatecheck(noprompt) {
+		if (checkdisabled) return;
+		instance.get("https://raw.githubusercontent.com/craftxbox/DTabs/master/index.html").then(function (response) {
+			if (response.status != 200 && !checkdisabled) {
 				checkdisabled = true;
 				alert("DTabs was unable to check for updates!")
 				return;
 			}
 			updatecontents = response.data;
-			if(!verregex.test(updatecontents)) return;
-			if(updatecontents.match(verregex)[1] > VERSION.match(verregex)[1]){
-				console.log("DTabs found an update! Upstream Version:",updatecontents.match(verregex)[1])
-				if(!noprompt) $`.updatedialog`.classlist.add("active");
-			} else{
-				console.log("DTabs did not find an update. Upstream Version:",updatecontents.match(verregex)[1])
+			if (!verregex.test(updatecontents)) return;
+			if (updatecontents.match(verregex)[1] > VERSION.match(verregex)[1]) {
+				console.log("DTabs found an update! Upstream Version:", updatecontents.match(verregex)[1])
+				if (!noprompt) $`.updatedialog`.classlist.add("active");
+			} else {
+				console.log("DTabs did not find an update. Upstream Version:", updatecontents.match(verregex)[1])
 			}
 		})
 	}
 
-	function update(){
-        $`.updatedialog`.classList.add("active")
-        $`.updatedialogbody`.setAttribute("style","display:none;")
-        updatecheck(true);
-		fs.renameSync(path.resolve(__dirname, "index.html"), path.resolve(__dirname, "index.html.OLD-"+Date.now()));
-		fs.writeFileSync(path.resolve(__dirname, "index.html"), updatecontents,"utf8");
+	function update() {
+		$`.updatedialog`.classList.add("active")
+		$`.updatedialogbody`.setAttribute("style", "display:none;")
+		updatecheck(true);
+		fs.renameSync(path.resolve(__dirname, "index.html"), path.resolve(__dirname, "index.html.OLD-" + Date.now()));
+		fs.writeFileSync(path.resolve(__dirname, "index.html"), updatecontents, "utf8");
 		alert("Update has been applied, DTabs will now exit.");
 		window.close();
 	}
 
-	function dismissupdate(dontask){
+	function dismissupdate(dontask) {
 		checkdisabled = dontask;
 		$`.updatedialog`.classlist.remove("active");
+	}
+
+	//custom discord endpoints!!!
+	function changeBaseUri() {
+		if (!confirm("Changing the global base URI may result in unexpected issues! Did you mean to do this?")) return;
+		baseuri = $`#baseuriinput`.value;
+		localStorage.setItem("baseuri", baseuri);
+		alert("Please restart DTabs for this to fully take effect!");
+	}
+
+	function changeTabBaseUri() {
+		if (!confirm("Changing the base URI may result in unexpected issues! Did you mean to do this?")) return;
+		var newuri = $`#tabbaseuriinput`.value;
+		deletetab()
+		addtab(false, null, newuri, newuri)
 	}
 
 	function csspath(reload = false) {
@@ -380,7 +409,13 @@
 		};
 		let i = tabsuninit[0]
 		tabsuninit.splice(0, 1)
-		addtab(true, i, tabtokens[i].split(':')[1])
+		var tabbaseuri = baseuri
+		var tabtoken = tabtokens[i]
+		tabtoken = tabtoken.replace(/http(s?):/, "http$1;")
+		if (tabtoken.split`:`.length > 2) {
+			tabbaseuri = tabtoken.split`:`[2].replace(";", ":");
+		}
+		addtab(true, i, tabtokens[i].split(':')[1], tabbaseuri)
 		if (!pastfirsttab) {
 			activetab(i)
 			pastfirsttab = true;
@@ -388,17 +423,17 @@
 		view = $("." + i + " webview")
 		view.addEventListener('dom-ready', function inject() {
 			view.removeEventListener('dom-ready', inject)
-			view.loadURL("https://discordapp.com/api/")
+			view.loadURL(tabbaseuri + "/api/")
 			view.addEventListener('dom-ready', function inject1() {
 				view.removeEventListener('dom-ready', inject1)
-				view.executeJavaScript("localStorage.setItem('token','\"" + tabtokens[i].split`:`[0] + "\"');window.location.href='/app'")
+				view.executeJavaScript("localStorage.setItem('token','\"" + tabtoken.split`:`[0] + "\"');console.log(localStorage);window.location.href='/app'")
 				inittabs()
 
 			})
 		})
 	}
 
-	function addtab(dirty, name = null, title = null) {
+	function addtab(dirty, name = null, title = null, tabbaseuri = null) {
 		if (!dirty && localStorage.getItem('tablock') == 'true') {
 			alert("Tabs are locked. Please unlock before attempting to add another tab.")
 			return "Tabs are locked. Please unlock before attempting to add another tab."
@@ -420,20 +455,20 @@
 		tab.classList.add("tab")
 		tab.classList.add(name != null ? name : "tab" + (tabs + 1))
 		tabinner.setAttribute("style", "width:100%;height:100%")
-		tabinner.setAttribute("src", "https://discordapp.com/login")
+		tabinner.setAttribute("src", tabbaseuri || baseuri + "/login")
 		tabinner.setAttribute("webpreferences", "nativeWindowOpen=true")
 		tabinner.setAttribute("allowpopups", true)
 		tabinner.setAttribute("plugins", true);
 		tabinner.setAttribute("partition", "persist:" + (name != null ? name : "tab" + (tabs + 1)));
 		if (dirty == false) {
 			tabinner.addEventListener('dom-ready', () => {
-				tabinner.executeJavaScript(replytoken)
+				tabinner.executeJavaScript(replytoken.replace("baseuri", tabbaseuri || baseuri))
 			})
 			tabinner.addEventListener('console-message', (e) => {
 				if (e.message.startsWith("dtabs:")) {
 					var data = JSON.parse(e.message.split(e.message.split("dtabs:")[1].split(":")[0])[1].substring(1))
 					console.log(data, e.message)
-					tabtokens["t" + data.id] = e.message.split("dtabs:")[1].split(":")[0] + ":" + data.username + "#" + data.discriminator
+					tabtokens["t" + data.id] = e.message.split("dtabs:")[1].split(":")[0] + ":" + data.username + "#" + data.discriminator + ":" + tabbaseuri || baseuri
 					$(`.titletab` + (tabs + 1)).textContent = data.username + "#" + data.discriminator
 					savetabs()
 				}
@@ -460,8 +495,9 @@
 		var i = $`#tabselect`.value
 		tabtokens[i.replace("title", "")] = undefined
 		var { session } = require("electron").remote;
-		session.fromPartition($("." + i.replace("title", "") + " webview").getAttribute("partition")).clearStorageData({storages:[
-			"appcache","cache","cookies","sessionCookies","persistentCookies","fileSystems","indexedDB","localStorage", "webSQL"]
+		session.fromPartition($("." + i.replace("title", "") + " webview").getAttribute("partition")).clearStorageData({
+			storages: [
+				"appcache", "cache", "cookies", "sessionCookies", "persistentCookies", "fileSystems", "indexedDB", "localStorage", "webSQL"]
 		});
 		$("." + i).remove();
 		$(".tab." + i.replace("title", "")).remove()
