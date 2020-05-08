@@ -234,7 +234,7 @@
 </body>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-	const VERSION = "VERSION=5;";
+	const VERSION = "VERSION=6;";
 
 	var $ = document.querySelector.bind(document)
 	var $$ = document.querySelectorAll.bind(document)tabbaseuri != null ? tabbaseuri : baseuri
@@ -355,7 +355,7 @@
 
 	function dismissupdate(dontask) {
 		checkdisabled = dontask;
-		$`.updatedialog`.classlist.remove("active");
+		$`.updatedialog`.classList.remove("active");
 	}
 
 	//custom discord endpoints!!!
@@ -428,7 +428,7 @@
 				view.removeEventListener('dom-ready', inject1)
 				view.executeJavaScript("localStorage.setItem('token','\"" + tabtoken.split`:`[0] + "\"');console.log(localStorage);window.location.href='/app'")
 				inittabs()
-
+				updatecheck()
 			})
 		})
 	}
