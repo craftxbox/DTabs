@@ -237,7 +237,7 @@
 	const VERSION = "VERSION=6;";
 
 	var $ = document.querySelector.bind(document)
-	var $$ = document.querySelectorAll.bind(document)tabbaseuri != null ? tabbaseuri : baseuri
+	var $$ = document.querySelectorAll.bind(document)
 
 	var baseuri = localStorage.getItem("baseuri") || "https://discord.com";
 
@@ -428,7 +428,6 @@
 				view.removeEventListener('dom-ready', inject1)
 				view.executeJavaScript("localStorage.setItem('token','\"" + tabtoken.split`:`[0] + "\"');console.log(localStorage);window.location.href='/app'")
 				inittabs()
-				updatecheck()
 			})
 		})
 	}
