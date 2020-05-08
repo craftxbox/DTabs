@@ -234,7 +234,7 @@
 </body>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-	const VERSION = "VERSION=3;";
+	const VERSION = "VERSION=2;";
 
 	var $ = document.querySelector.bind(document)
 	var $$ = document.querySelectorAll.bind(document)
@@ -336,7 +336,7 @@
 			if (!verregex.test(updatecontents)) return;
 			if (updatecontents.match(verregex)[1] > VERSION.match(verregex)[1]) {
 				console.log("DTabs found an update! Upstream Version:", updatecontents.match(verregex)[1])
-				if (!noprompt) $`.updatedialog`.classlist.add("active");
+				if (!noprompt) $`.updatedialog`.classList.add("active");
 			} else {
 				console.log("DTabs did not find an update. Upstream Version:", updatecontents.match(verregex)[1])
 			}
