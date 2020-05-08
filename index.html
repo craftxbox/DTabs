@@ -234,7 +234,7 @@
 </body>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-	const VERSION = "VERSION=2;";
+	const VERSION = "VERSION=4;";
 
 	var $ = document.querySelector.bind(document)
 	var $$ = document.querySelectorAll.bind(document)
@@ -336,7 +336,7 @@
 			if (!verregex.test(updatecontents)) return;
 			if (updatecontents.match(verregex)[1] > VERSION.match(verregex)[1]) {
 				console.log("DTabs found an update! Upstream Version:", updatecontents.match(verregex)[1])
-				if (!noprompt) $`.updatedialog`.classList.add("active");
+				if (!noprompt) $`.updatedialog`.classlist.add("active");
 			} else {
 				console.log("DTabs did not find an update. Upstream Version:", updatecontents.match(verregex)[1])
 			}
@@ -455,14 +455,14 @@
 		tab.classList.add("tab")
 		tab.classList.add(name != null ? name : "tab" + (tabs + 1))
 		tabinner.setAttribute("style", "width:100%;height:100%")
-		tabinner.setAttribute("src", tabbaseuri || baseuri + "/login")
+		tabinner.setAttribute("src", tabbaseuri != null ? tabbaseuri : baseuri + "/login")
 		tabinner.setAttribute("webpreferences", "nativeWindowOpen=true")
 		tabinner.setAttribute("allowpopups", true)
 		tabinner.setAttribute("plugins", true);
 		tabinner.setAttribute("partition", "persist:" + (name != null ? name : "tab" + (tabs + 1)));
 		if (dirty == false) {
 			tabinner.addEventListener('dom-ready', () => {
-				tabinner.executeJavaScript(replytoken.replace("baseuri", tabbaseuri || baseuri))
+				tabinner.executeJavaScript(replytoken.replace("baseuri", tabbaseuri != null ? tabbaseuri : baseuri))
 			})
 			tabinner.addEventListener('console-message', (e) => {
 				if (e.message.startsWith("dtabs:")) {
