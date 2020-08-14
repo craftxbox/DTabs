@@ -244,7 +244,7 @@
 	const replytoken = `
     var oldsetrequestheader = window.XMLHttpRequest.prototype.setRequestHeader
     window.XMLHttpRequest.prototype.setRequestHeader = function(name, value){
-      if(name.toLowerCase() == "Authorization" && value != null){
+      if(name.toLowerCase() == "authorization" && value != null && value.length > 15){
 		window.XMLHttpRequest.prototype.setRequestHeader = oldsetrequestheader
 		var xmlHttp = new XMLHttpRequest();
 		xmlHttp.open("GET","baseuri/api/v6/users/@me",false);
@@ -461,7 +461,7 @@
 		tabinner.setAttribute("partition", "persist:" + (name != null ? name : "tab" + (tabs + 1)));
 		if (dirty == false) {
 			tabinner.addEventListener('dom-ready', () => {
-				tabinner.executeJavaScript(replytoken.replace("baseuri", tabbaseuri != null ? tabbaseuri : baseuri))
+				tabinner.executeJavaScript(replytoken.replace(/baseuri/,`${tabbaseuri == null ? baseuri : tabbaseuri }`));
 			})
 			tabinner.addEventListener('console-message', (e) => {
 				if (e.message.startsWith("dtabs:")) {
@@ -472,15 +472,15 @@
 					savetabs()
 				}
 			})
-			tabinner.addEventListener('dom-ready', () => {
-				tabinner.getWebContents().addListener('new-window', (e, url) => {
-					require("electron").shell.openExternal(url);
-				})
-				if (localStorage.getItem('injectcss') == 'true' && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
-					csspath(true)
-				}
-			})
 		}
+		tabinner.addEventListener('dom-ready', ()=>{
+			tabinner.getWebContents().addListener('new-window', (e, url) => {
+				require("electron").shell.openExternal(url);
+			})
+			if (localStorage.getItem('injectcss') == 'true' && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
+				csspath(true)
+			}
+		})
 		tab.appendChild(tabinner)
 		$(".mainbody").appendChild(tab)
 		if (dirty == false) activetab((name != null ? name : "tab" + (tabs + 1)))
