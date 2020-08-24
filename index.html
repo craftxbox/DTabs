@@ -194,7 +194,7 @@
 	<div class="settings">
 		<div class="settingsbody">
 			<input id="injecttoggle" type="checkbox"
-				onclick="localStorage.setItem('injectcss',$('#injecttoggle').checked);alert('Changing this setting requires a reload to take effect.')">Inject
+				onclick="localStorage.setItem('injectcss',$('#injecttoggle').checked);setCssState($('#injecttoggle').checked)">Inject
 			CSS</input>
 			<button id="injectpath" onclick="csspath()">Select file</button>
 			<button id="injectpath" onclick="csspath(true)">Reload CSS</button><br>
@@ -234,7 +234,7 @@
 </body>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-	const VERSION = "VERSION=8;";
+	const VERSION = "VERSION=9;";
 
 	var $ = document.querySelector.bind(document)
 	var $$ = document.querySelectorAll.bind(document)
@@ -317,7 +317,7 @@
 
 	var updatecontents = "";
 	var checkdisabled = false;
-	var verregex = /VERSION=(\d)+;/;
+	var verregex = /VERSION=(\d+);/;
 	var instance = axios.create({
 		validateStatus: a => {
 			return true;
@@ -390,6 +390,16 @@
 							style.setAttribute('class','DTABSCSS');
 							style.appendChild(document.createTextNode(\`${cssfile.replace(/[\n`]/g, "")}\`));
 							document.querySelector('head').appendChild(style)`)
+			}
+		}
+	}
+
+	function setCssState(enable){
+		if(enable){
+			csspath(true);
+		} else{
+			for (var i of $$("webview")) {
+				i.executeJavaScript(`document.querySelector('.DTABSCSS') != null ? document.head.removeChild(document.querySelector('.DTABSCSS')) : null;`)
 			}
 		}
 	}
@@ -475,7 +485,7 @@
 		}
 		tabinner.addEventListener('dom-ready', ()=>{
 			tabinner.getWebContents().addListener('new-window', (e, url) => {
-				require("electron").shell.openExternal(url);
+				//require("electron").shell.openExternal(url);
 			})
 			if (localStorage.getItem('injectcss') == 'true' && localStorage.getItem('injectcss') && localStorage.getItem('csspath') != null) {
 				csspath(true)
