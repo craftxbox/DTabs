@@ -9,6 +9,7 @@ function createWindow() {
     frame: false,
     webPreferences: {
       nodeIntegration: true,
+      enableRemoteModule: true,
       webviewTag: true,
       session: session.defaultSession,
       nativeWindowOpen:true
