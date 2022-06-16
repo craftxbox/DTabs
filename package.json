@@ -21,7 +21,7 @@
     "electron-builder": "^22.14.13"
   },
   "devDependencies": {
-    "electron": ">=11.5.0"
+    "electron": ">=17.2.0"
   },
   "build": {
     "appId": "dtabs",
