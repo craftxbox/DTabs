@@ -35,4 +35,16 @@ jobs:
     - run: 7za a -tzip -y -bsp0 -bso0 "DTabs_windows_${GITHUB_REF_NAME}_${GITHUB_SHA}.zip" './DTabs-win32-x64'
     - run: 7za a -tzip -y -bsp0 -bso0 "DTabs_macos_${GITHUB_REF_NAME}_${GITHUB_SHA}.zip" './DTabs-darwin-x64'
     - run: 7za a -tzip -y -bsp0 -bso0 "DTabs_linux_${GITHUB_REF_NAME}_${GITHUB_SHA}.zip" './DTabs-linux-x64'
-    - run: ls
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        path: DTabs_windows_${{env.GITHUB_REF_NAME}}_${{env.GITHUB_SHA}}.zip
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        path: DTabs_macos_${{env.GITHUB_REF_NAME}}_${{env.GITHUB_SHA}}.zip
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        path: DTabs_linux_${{env.GITHUB_REF_NAME}}_${{env.GITHUB_SHA}}.zip
+        
