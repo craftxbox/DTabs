@@ -38,13 +38,13 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
       with:
-        path: DTabs_windows_${{env.GITHUB_REF_NAME}}_${{env.GITHUB_SHA}}.zip
+        path: DTabs_windows_${{github.ref_name}}_${{github.sha}}.zip
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
       with:
-        path: DTabs_macos_${{env.GITHUB_REF_NAME}}_${{env.GITHUB_SHA}}.zip
+        path: DTabs_macos_${{github.ref_name}}_${{github.sha}}.zip
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
       with:
-        path: DTabs_linux_${{env.GITHUB_REF_NAME}}_${{env.GITHUB_SHA}}.zip
+        path: DTabs_linux_${{github.ref_name}}_${{github.sha}}.zip
         
