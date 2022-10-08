@@ -28,7 +28,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: sudo apt-get install -y wine64 
-    - run: npm i electron-packager@15.5.2 -g
+    - run: npm i electron-packager@15.5.1 -g
     - run: electron-packager . --platform win32 --arch x64 --icon './dtabs.ico'
     - run: electron-packager . --platform darwin --arch x64 --icon './dtabs.ico'
     - run: electron-packager . --platform linux --arch x64 --icon './dtabs.ico'
