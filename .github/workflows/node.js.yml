@@ -1,0 +1,38 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: apt-get install -y wine64 
+    - run: npm i electron-packager@15.5.2 -g
+    - run: electron-packager . --platform win32 --arch x64 --icon './dtabs.ico'
+    - run: electron-packager . --platform darwin --arch x64 --icon './dtabs.ico'
+    - run: electron-packager . --platform linux --arch x64 --icon './dtabs.ico'
+    - run: 7za a -tzip -y -bsp0 -bso0 "DTabs_windows_${GITHUB_REF_NAME}_${GITHUB_SHA}.zip" './DTabs-win32-x64'
+    - run: 7za a -tzip -y -bsp0 -bso0 "DTabs_macos_${GITHUB_REF_NAME}_${GITHUB_SHA}.zip" './DTabs-darwin-x64'
+    - run: 7za a -tzip -y -bsp0 -bso0 "DTabs_linux_${GITHUB_REF_NAME}_${GITHUB_SHA}.zip" './DTabs-linux-x64'
+    - run: ls
