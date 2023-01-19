@@ -27,6 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
+    - run: sudo apt-get update
     - run: sudo apt-get install -y wine64 
     - run: npm i electron-packager@15.5.1 -g
     - run: electron-packager . --platform win32 --arch x64 --icon './dtabs.ico'
