@@ -591,9 +591,10 @@
 </body>
 <script src="https://unpkg.com/axios@0.27.2/dist/axios.min.js"></script>
 <script>
-	// VERSION=90;
+	// VERSION=99;
 	const VERSION = "VERSION2=10.0;";
 	// This probably looks super weird, but, only change VERSION2. The simple explanation to why this is required is that versions <=9 have a broken version checker.
+	// Anyone who had v9 is permanently stuck on v9 unless they reinstall... whoops.
 
 	const $ = document.querySelector.bind(document);
 	const $$ = document.querySelectorAll.bind(document);
