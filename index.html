@@ -749,9 +749,10 @@
 			_paq.push([
 				"setCustomDimension",
 				(customDimensionId = 6),
-				(customDimensionValue = localStorage.getItem("baseuri") != "https://discord.com"),
+				(customDimensionValue = (localStorage.getItem("baseuri") || "https://discord.com") != "https://discord.com"),
 			]);
 		if (localStorage.getItem("analytics.dtabs.base.tabs.anychanged") !== "false") {
+			if(Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
 			let anyChanged = false;
 			for (var i of Object.values(tabtokens)) {
 				if (i.baseuri != "https://discord.com") {
@@ -761,12 +762,14 @@
 			}
 			_paq.push(["setCustomDimension", (customDimensionId = 7), (customDimensionValue = anyChanged)]);
 		}
-		if (localStorage.getItem("analytics.dtabs.tabs.count") !== "false")
+		if (localStorage.getItem("analytics.dtabs.tabs.count") !== "false") {
+			if(Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
 			_paq.push([
 				"setCustomDimension",
 				(customDimensionId = 8),
-				(customDimensionValue = Object.keys(tabtokens).length),
+				(customDimensionValue = Object.keys(tabtokens).length-1),
 			]);
+		}
 		if (localStorage.getItem("analytics.dtabs.tabs.rolledup") !== "false")
 			_paq.push([
 				"setCustomDimension",
@@ -783,9 +786,10 @@
 			_paq.push([
 				"setCustomDimension",
 				(customDimensionId = 10),
-				(customDimensionValue = localStorage.getItem("baseuri")),
+				(customDimensionValue = localStorage.getItem("baseuri")||"default"),
 			]);
 		if (localStorage.getItem("analytics.dtabs.tabs.all.base") === "true") {
+			if(Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
 			let bases = [];
 			for (var i of Object.values(tabtokens)) {
 				bases.push(i.baseuri);
@@ -793,6 +797,7 @@
 			_paq.push(["setCustomDimension", (customDimensionId = 11), (customDimensionValue = JSON.stringify(bases))]);
 		}
 		if (localStorage.getItem("analytics.dtabs.tabs.all.id") === "true") {
+			if(Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
 			_paq.push([
 				"setCustomDimension",
 				(customDimensionId = 12),
@@ -1001,6 +1006,8 @@
 		localStorage.setItem("tabs", JSON.stringify(tabtokens));
 		window.location.reload();
 	}
+
+	updateAnalytics();
 
 	let tabsuninit = Object.keys(tabtokens);
 
