@@ -275,13 +275,13 @@
 		}
 
 		.tchinput {
-			width:100%;
-			height:40px;
-			margin-bottom:5px;
-			padding:4px;
-			font-size:20px;
+			width: 100%;
+			height: 40px;
+			margin-bottom: 5px;
+			padding: 4px;
+			font-size: 20px;
 			border-radius: 5px;
-			border:none;
+			border: none;
 		}
 
 		.tabbtn-ctx {
@@ -943,10 +943,22 @@
 		console.log(analyticsKeys);
 		$`#analytics\\.enableTotally`.setAttribute("checked", localStorage.getItem("analytics.enableTotally") !== "false");
 		for (var i of analyticsKeys) {
-			if (localStorage.getItem(i) === "true")
-				$(`#${i.split("analytics.")[1].replaceAll(".", "\\.")}`).setAttribute("checked", true);
-			else if (localStorage.getItem(i) === "false")
-				$(`#${i.split("analytics.")[1].replaceAll(".", "\\.")}`).removeAttribute("checked");
+			if (localStorage.getItem(i) === "true") {
+				let element = $(`#${i.split("analytics.")[1].replaceAll(".", "\\.")}`)
+				if (!element) {
+					console.log(`No element for analytics key ${i}, this data point has likely been removed.`);
+					continue;
+				};
+				element.setAttribute("checked", true);
+			}
+			else if (localStorage.getItem(i) === "false") {
+				let element = $(`#${i.split("analytics.")[1].replaceAll(".", "\\.")}`)
+				if (!element) {
+					console.log(`No element for analytics key ${i}, this data point has likely been removed.`);
+					continue;
+				};
+				element.removeAttribute("checked");
+			}
 		}
 	}
 
@@ -1467,7 +1479,7 @@
 		webview.reload();
 	}
 
-	function ctxrename(postrename=false) {
+	function ctxrename(postrename = false) {
 		if (postrename) {
 			tabtokens[tabctx].title = $`#ctxrenameinput`.value;
 			$(`.titlebutton.title` + tabctx).textContent = tabtokens[tabctx].title;
