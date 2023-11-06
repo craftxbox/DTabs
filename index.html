@@ -94,11 +94,18 @@
 
 		#grabbar {
 			-webkit-app-region: drag;
+			box-sizing: border-box;
+			font-size: 25px;
+			padding-top: 2px;
+			border-bottom: 3px #777 solid;
+			background-color: #333
+		}
+
+		.fa {
 			font-family: "Font Awesome 5 Free";
 			font-weight: 900;
-			font-size: 25px;
-			box-sizing: border-box;
-			border-bottom: 3px #666 solid;
+			padding-top: 5px;
+			font-size: 20px;
 		}
 
 		.mainbody {
@@ -267,31 +274,30 @@
 			display: block;
 		}
 	</style>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
-		integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous" />
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.2/css/all.css" crossorigin="anonymous" />
 </head>
 
 <body>
 	<div class="topbar" id="topbar">
 		<div class="topbar spacer" id="tabbuttons"></div>
-		<div class="titlebutton" id="grabbar" title="Drag the window from here.">
+		<div class="titlebutton fa" id="grabbar" title="Drag the window from here.">
 			&#xf58d;
 		</div>
-		<div class="titlebutton" id="addtab" title="Create a new tab." onclick="addtab(false)">
-			+
+		<div class="titlebutton fa" id="addtab" title="Create a new tab." onclick="addtab(false)">
+			&#xf234;
 		</div>
 		<div class="titlebutton rollupbtn" title="Collapse the tab bar unless hovered" onclick="rollup()">
 			▲
 		</div>
-		<div class="titlebutton settingsbtn" title="Configure DTabs settings." onclick="settings()">
-			⚙️
+		<div class="titlebutton fa settingsbtn" title="Configure DTabs settings." onclick="settings()">
+			&#xf013;
 		</div>
 		<div class="titlebutton" onclick="remote.getCurrentWindow().minimize()">
 			_
 		</div>
-		<div class="titlebutton"
+		<div class="titlebutton fa far"
 			onclick="remote.getCurrentWindow().isMaximized() ? remote.getCurrentWindow().unmaximize() : remote.getCurrentWindow().maximize()">
-			☐
+			&#xf2d0;
 		</div>
 		<div class="titlebutton" onclick="remote.getCurrentWindow().destroy()">X</div>
 	</div>
