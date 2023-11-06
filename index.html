@@ -1262,7 +1262,9 @@
 		}).then(function (response) {
 			if (response.status == 200) {
 				var data = response.data
-				$`#tchresolvenew p`.textContent = `${data.username}#${data.discriminator}`;
+				let name = `${data.username}`;
+				if (data.discriminator != "0") name += `#${data.discriminator}`;
+				$`#tchresolvenew p`.textContent = name;
 				$`#tchresolvenew`.setAttribute("onclick", "$`.tokenchange`.classList.remove('active'); $`#tchresolve`.classList.remove('active'); tchresolvenew();")
 			} else {
 				$`#tchresolvenew p`.textContent = 'Invalid Token';
@@ -1278,7 +1280,9 @@
 		}).then(function (response) {
 			if (response.status == 200) {
 				var data = response.data
-				$`#tchresolveold p`.textContent = `${data.username}#${data.discriminator}`;
+				let name = `${data.username}`;
+				if (data.discriminator != "0") name += `#${data.discriminator}`;
+				$`#tchresolveold p`.textContent = name;
 				$`#tchresolveold`.setAttribute("onclick", "tokenChangeState = null;$`.tokenchange`.classList.remove('active'); $`#tchresolve`.classList.remove('active');")
 			} else {
 				$`#tchresolveold p`.textContent = 'Invalid Token';
@@ -1292,7 +1296,7 @@
 			if ($`#tchresolveold p`.textContent == 'Invalid Token' && $`#tchresolvenew p`.textContent == 'Invalid Token') {
 				$`.tokenchange`.classList.remove('active');
 				$`#tchresolve`.classList.remove('active');
-				alert("Both old and new tokens are invalid. This shouldn't be possible, but you'll probably have to relog soon.")
+				alert("Both old and new tokens are invalid. This shouldn't be possible, but you'll probably be logged out soon.")
 				tokenChangeState = null;
 			}
 		}, 5000)
@@ -1326,7 +1330,9 @@
 		}).then(function (response) {
 			if (response.status == 200) {
 				var data = response.data
-				tabtokens[tokenChangeState.tab].title = `${data.username}#${data.discriminator}`;
+				let name = `${data.username}`;
+				if (data.discriminator != "0") name += `#${data.discriminator}`;
+				tabtokens[tokenChangeState.tab].title = name;
 				tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
 				$(`.titlebutton.title` + tokenChangeState.tab).textContent = tabtokens[tokenChangeState.tab].title;
 				savetabs();
