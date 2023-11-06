@@ -609,6 +609,40 @@
 	const fs = require("fs");
 	const path = require("path");
 	const process = require("process");
+
+	var instance = axios.create({
+		validateStatus: (a) => {
+			return true;
+		},
+	});
+
+	//Mainjs version check.
+	//Starting in v11 the minimum supported electron version is likely 16+
+	//Older versions shipped with electron 10, which will cause a crash with this new code.
+	//This section serves to kill the app before it crashes, and to inform the user to update.
+	let firstUA = navigator.userAgent
+	let uamatch = firstUA.match(/Electron\/(\d+)/)
+	if (uamatch && uamatch[1] < 16) {
+		const { dialog } = require("electron").remote
+		dialog.showMessageBox({
+			message: `ERROR: DTabs MainJS/Electron is too old (${uamatch[1]} but expected 16). We'll try to revert you to the last supported version, but DTabs is likely to be unstable and insecure!\n\nPlease update DTabs to the latest version.`,
+			type: "error",
+			title: "DTabs: STARTUP ERROR"
+		})
+		let lastlegacyuri = "https://raw.githubusercontent.com/craftxbox/DTabs/legacy-reverts/v10.html"
+		instance.get(lastlegacyuri).then(function (response) {
+			if (response.status != 200) {
+				alert("DTabs was unable to revert. Please reinstall.");
+				return;
+			}
+			updatecontents = response.data;
+			fs.renameSync(path.resolve(__dirname, "index.html"), path.resolve(__dirname, "index.html.OLD-" + Date.now()));
+			fs.writeFileSync(path.resolve(__dirname, "index.html"), updatecontents, "utf8");
+			alert("DTabs has reverted to the last available legacy version. DTabs will now exit.");
+			require("electron").remote.getCurrentWindow().close()
+		});
+	}
+
 	const remote = require("@electron/remote")
 
 	var baseuri = localStorage.getItem("baseuri") || "https://discord.com";
