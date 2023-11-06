@@ -273,9 +273,51 @@
 		.tokenchangebody.active {
 			display: block;
 		}
+
+		.tchinput {
+			width:100%;
+			height:40px;
+			margin-bottom:5px;
+			padding:4px;
+			font-size:20px;
+			border-radius: 5px;
+			border:none;
+		}
+
+		.tabbtn-ctx {
+			display: none;
+			position: fixed;
+			background-color: #333333b3;
+			z-index: 90;
+			padding: 5px;
+			border: 3px solid #444;
+		}
+
+		.tabbtn-ctx-item {
+			padding: 0.3em 1.2em;
+		}
+
+		.tabbtn-ctx-item:hover {
+			background-color: #2c8df733;
+			cursor: pointer;
+		}
+
+		.ctxwrap {
+			display: flex;
+			flex-flow: column nowrap;
+		}
 	</style>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.2/css/all.css" crossorigin="anonymous" />
 </head>
+
+<div id="tabbtn-ctx" class="tabbtn-ctx">
+	<div class="ctxwrap">
+		<div class="tabbtn-ctx-item" onclick="ctxreload()">Reload</div>
+		<div class="tabbtn-ctx-item" onclick="ctxrename()">Rename</div>
+		<div class="tabbtn-ctx-item" onclick="ctxdelete()">Delete</div>
+		<div class="tabbtn-ctx-item" onclick="ctxinspect()">Open DevTools</div>
+	</div>
+</div>
 
 <body>
 	<div class="topbar" id="topbar">
@@ -369,8 +411,6 @@
 				</h3>
 				<input type="checkbox" id="dtabs.base.uri" onclick="toggleAnalytics('dtabs.base.uri')" />Share Global
 				Base URI<br />
-				<input type="checkbox" id="dtabs.tabs.all.id" onclick="toggleAnalytics('dtabs.tabs.all.id')" />Share Tab
-				user IDs<br />
 				<input type="checkbox" id="dtabs.tabs.all.base" onclick="toggleAnalytics('dtabs.tabs.all.base')" />Share
 				Tab Base URIs<br />
 			</div>
@@ -397,8 +437,37 @@
 	<div class="changelog">
 		<div class="changelogbody">
 			<h1>Changelog</h1>
-			DTabs has been updated to Version 10!<br />
+			DTabs has been updated to Version 11!<br />
 			<br />
+			<table>
+				<tr>
+					<td>[NEW]</td>
+					<td>Right-Click menu for tabs in the tab bar, Reload and rename tabs with ease!</td>
+				</tr>
+				<tr>
+					<td>[FIX]</td>
+					<td>The tab bar no longer collapses itself on startup when the window isn't maximized yet.</td>
+				</tr>
+				<tr>
+					<td>[FIX]</td>
+					<td>Fixed username "#0" population on accounts with new non-discriminated usernames.</td>
+				</tr>
+				<tr>
+					<td>[IMPR]</td>
+					<td>More visually appealing and concise icons.</td>
+				</tr>
+				<tr>
+					<td>[IMPR]</td>
+					<td>Electron updated for compatibility and security.</td>
+				</tr>
+				<tr>
+					<td>[IMPR]</td>
+					<td>Auto-Downgrade and security warning for those with old versions of Electron</td>
+				</tr>
+			</table>
+			<br />
+			<br />
+			<h2>Older changes from v10</h2>
 			<table>
 				<tr class="important">
 					<td>[NEW]</td>
@@ -418,7 +487,8 @@
 				</tr>
 				<tr>
 					<td>[NEW]</td>
-					<td>Window drag handle, indicated by <span id="grabbar">&#xf58d;</span> and a dark grey underline.
+					<td>Window drag handle, indicated by <span class="fa" id="grabbar">&#xf58d;</span> and a light grey
+						underline.
 					</td>
 				</tr>
 				<tr>
@@ -444,7 +514,7 @@
 				</tr>
 				<tr>
 					<td>[IMPR]</td>
-					<td>Improved autoupdator for more granular updates.</td>
+					<td>Improved auto updater for more granular updates.</td>
 				</tr>
 			</table>
 			<br />
@@ -573,9 +643,20 @@
 			<p class="dialogtext">
 				What would you like to name this tab?
 			</p>
-			<input type="text" id="tchrenameinput" placeholder="Tab Name">
+			<input type="text" class="tchinput" id="tchrenameinput" placeholder="Tab Name">
 			<div class="buttoncontainer">
 				<div class="button" onclick="tchrename();">
+					<p>Save</p>
+				</div>
+			</div>
+		</div>
+		<div class="tokenchangebody" id="ctxrename">
+			<p class="dialogtext">
+				What would you like to name this tab?
+			</p>
+			<input type="text" class="tchinput" id="ctxrenameinput" placeholder="Tab Name">
+			<div class="buttoncontainer">
+				<div class="button" onclick="ctxrename(true);">
 					<p>Save</p>
 				</div>
 			</div>
@@ -758,11 +839,7 @@
 	var checkdisabled = false;
 	var verregex = /VERSION2=(\d+)(?:\.(\d+))?;/;
 	var oldverregex = /VERSION=(\d+);/;
-	var instance = axios.create({
-		validateStatus: (a) => {
-			return true;
-		},
-	});
+	let tabctx;
 
 	//only major changes trigger changelog. Minor changes will only be bugfixes anyways.
 	if (localStorage.getItem("lastVersion") == null ||
@@ -792,7 +869,7 @@
 				(customDimensionValue = (localStorage.getItem("baseuri") || "https://discord.com") != "https://discord.com"),
 			]);
 		if (localStorage.getItem("analytics.dtabs.base.tabs.anychanged") !== "false") {
-			if(Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
+			if (Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
 			let anyChanged = false;
 			for (var i of Object.values(tabtokens)) {
 				if (i.baseuri != "https://discord.com") {
@@ -803,11 +880,11 @@
 			_paq.push(["setCustomDimension", (customDimensionId = 7), (customDimensionValue = anyChanged)]);
 		}
 		if (localStorage.getItem("analytics.dtabs.tabs.count") !== "false") {
-			if(Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
+			if (Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
 			_paq.push([
 				"setCustomDimension",
 				(customDimensionId = 8),
-				(customDimensionValue = Object.keys(tabtokens).length-1),
+				(customDimensionValue = Object.keys(tabtokens).length - 1),
 			]);
 		}
 		if (localStorage.getItem("analytics.dtabs.tabs.rolledup") !== "false")
@@ -826,10 +903,10 @@
 			_paq.push([
 				"setCustomDimension",
 				(customDimensionId = 10),
-				(customDimensionValue = localStorage.getItem("baseuri")||"default"),
+				(customDimensionValue = localStorage.getItem("baseuri") || "default"),
 			]);
 		if (localStorage.getItem("analytics.dtabs.tabs.all.base") === "true") {
-			if(Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
+			if (Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
 			let bases = [];
 			for (var i of Object.values(tabtokens)) {
 				bases.push(i.baseuri);
@@ -981,17 +1058,16 @@
 			dialog.showOpenDialog({ properties: ["openFile"] }).then((e) => {
 				if (e && e.filePaths) {
 					localStorage.setItem("csspath", e.filePaths[0]);
-				$`#injectpath`.textContent = localStorage.getItem("csspath") || "Select file";
+					$`#injectpath`.textContent = localStorage.getItem("csspath") || "Select file";
 					if (e[0] != null) {
 						csspath();
-			}
+					}
 				}
 			});
 			return;
 		}
 		if (
 			localStorage.getItem("injectcss") == "true" &&
-			localStorage.getItem("injectcss") &&
 			localStorage.getItem("csspath") != null
 		) {
 			var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
@@ -1058,6 +1134,7 @@
 			csspath(true);
 			if (localStorage.getItem("rolledup") == "true") {
 				rollup();
+				onresize(); // lazy hack to fix the app trying to roll the bar when unminimized at startup.
 			}
 			updatecheck();
 			return;
@@ -1153,6 +1230,14 @@
 				csspath(true);
 			}
 		});
+		tabbutton.addEventListener("contextmenu", (e) => {
+			$`#tabbtn-ctx`.style = "display:block; left:" + (e.clientX - 10) + "px;top:" + (e.clientY - 10) + "px;";
+			tabctx = name;
+			$`#tabbtn-ctx`.addEventListener("mouseleave", () => {
+				$`#tabbtn-ctx`.style = "display:none;";
+			});
+			e.preventDefault()
+		})
 		tab.appendChild(tabinner);
 		$(".mainbody").appendChild(tab);
 		if (dirty == false) {
@@ -1160,6 +1245,12 @@
 			activetab(name);
 		}
 	}
+
+	document.addEventListener("click", function (e) {
+		if ($`#tabbtn-ctx`.style.display == "block") {
+			$`#tabbtn-ctx`.style = "display:none;";
+		}
+	});
 
 	async function handleToken(details, name, baseuri, dirty) {
 		if (details.requestHeaders["Authorization"]) {
@@ -1206,12 +1297,12 @@
 
 	setInterval(processTokenQueue, 5000)
 
-	function deletetab() {
+	function deletetab(tab = null) {
 		if (localStorage.getItem("tablock") == "true") {
 			alert("Tabs are locked. Please unlock before attempting to delete a tab.");
 			return "Tabs are locked. Please unlock before attempting to delete a tab.";
 		}
-		var i = $`#tabselect`.value;
+		var i = tab || $`#tabselect`.value;
 		tabtokens[i.replace("title", "")] = undefined;
 		var { session } = remote;
 		session.fromPartition($("." + i.replace("title", "") + " webview").getAttribute("partition")).clearStorageData({
@@ -1360,6 +1451,34 @@
 		tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
 		savetabs();
 		tokenChangeState = null;
+	}
+
+	function ctxinspect() {
+		var webview = $("." + tabctx + " webview");
+		webview.openDevTools();
+	}
+
+	function ctxdelete() {
+		deletetab(tabctx);
+	}
+
+	function ctxreload() {
+		var webview = $("." + tabctx + " webview");
+		webview.reload();
+	}
+
+	function ctxrename(postrename=false) {
+		if (postrename) {
+			tabtokens[tabctx].title = $`#ctxrenameinput`.value;
+			$(`.titlebutton.title` + tabctx).textContent = tabtokens[tabctx].title;
+			savetabs();
+			$`#ctxrename`.classList.remove('active');
+			$`.tokenchange`.classList.remove('active');
+			return;
+		}
+		$`#ctxrenameinput`.value = tabtokens[tabctx].title;
+		$`#ctxrename`.classList.add('active');
+		$`.tokenchange`.classList.add('active');
 	}
 
 	inittabs();
