@@ -836,14 +836,6 @@
 			}
 			_paq.push(["setCustomDimension", (customDimensionId = 11), (customDimensionValue = JSON.stringify(bases))]);
 		}
-		if (localStorage.getItem("analytics.dtabs.tabs.all.id") === "true") {
-			if(Object.keys(tabtokens).length <= 1) return; //tabtokens aren't loaded yet
-			_paq.push([
-				"setCustomDimension",
-				(customDimensionId = 12),
-				(customDimensionValue = JSON.stringify(Object.keys(tabtokens))),
-			]);
-		}
 		_paq.push(["trackEvent", "analytics", "update"]);
 	}
 
