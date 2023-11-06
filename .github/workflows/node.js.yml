@@ -33,22 +33,20 @@ jobs:
     - run: electron-packager . --platform win32 --arch x64 --icon './dtabs.ico'
     - run: electron-packager . --platform darwin --arch x64 --icon './dtabs.ico'
     - run: electron-packager . --platform linux --arch x64 --icon './dtabs.ico'
-    - run: 7za a -tzip -y -bsp0 -bso0 "DTabs_windows_${GITHUB_REF_NAME}_${GITHUB_SHA}.zip" './DTabs-win32-x64'
-    - run: 7za a -tzip -y -bsp0 -bso0 "DTabs_macos_${GITHUB_REF_NAME}_${GITHUB_SHA}.zip" './DTabs-darwin-x64'
-    - run: 7za a -tzip -y -bsp0 -bso0 "DTabs_linux_${GITHUB_REF_NAME}_${GITHUB_SHA}.zip" './DTabs-linux-x64'
+    
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
       with:
         name: DTabs_windows_${{github.ref_name}}_${{github.sha}}.zip
-        path: DTabs_windows_${{github.ref_name}}_${{github.sha}}.zip
+        path: ./DTabs-win32-x64
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
       with:
         name: DTabs_macos_${{github.ref_name}}_${{github.sha}}.zip
-        path: DTabs_macos_${{github.ref_name}}_${{github.sha}}.zip
+        path: ./DTabs-darwin-x64
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
       with:
         name: DTabs_linux_${{github.ref_name}}_${{github.sha}}.zip
-        path: DTabs_linux_${{github.ref_name}}_${{github.sha}}.zip
+        path: ./DTabs-linux-x64
         
