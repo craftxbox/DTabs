@@ -18,10 +18,10 @@
     "url": "git://github.com/craftxbox/dtabs.git"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.12",
-    "electron-builder": "^24.6.4"
+    "@electron/remote": "^2.0.12"
   },
   "devDependencies": {
+    "electron-builder": "^24.6.4",
     "electron": ">=27.0.3"
   },
   "build": {
