@@ -1,0 +1,1269 @@
+<head>
+	<style>
+		* {
+			font-family: "Whitney", "Arial";
+			color: #fff;
+			user-select: none;
+		}
+
+		button,
+		input,
+		select,
+		option {
+			color: black;
+		}
+
+		p,
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6,
+		ul {
+			margin: 0px;
+		}
+
+		body {
+			background-color: #333;
+			margin: 0px;
+			padding: 0px;
+			min-height: 100%;
+			overflow: hidden;
+		}
+
+		::-webkit-scrollbar {
+			width: 2px;
+			height: 2px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: #888;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: #666;
+		}
+
+		.topbar {
+			top: 0px;
+			width: 100%;
+			height: 30px;
+			background-color: #444;
+			margin: 0px;
+			padding: 0px;
+			display: flex;
+			flex-flow: row nowrap;
+			justify-content: flex-start;
+			transition: top 0.5s;
+			overflow-y: hidden;
+		}
+
+		#topbar {
+			position: fixed;
+			z-index: 2;
+		}
+
+		.titlebutton {
+			height: 30px;
+			min-width: 35px;
+			-webkit-app-region: no-drag;
+			text-align: center;
+			color: #eee;
+			font-size: 22px;
+			padding-left: 4px;
+			padding-right: 4px;
+			flex: none;
+			cursor: pointer;
+		}
+
+		.titlebutton:hover {
+			background-color: #333 !important;
+		}
+
+		.titlebutton.active {
+			background-color: #333;
+		}
+
+		.spacer {
+			/*margin-left:auto;*/
+			height: 30px;
+			flex-grow: 100;
+			scroll-behavior: smooth;
+		}
+
+		#grabbar {
+			-webkit-app-region: drag;
+			font-family: "Font Awesome 5 Free";
+			font-weight: 900;
+			font-size: 25px;
+			box-sizing: border-box;
+			border-bottom: 3px #666 solid;
+		}
+
+		.mainbody {
+			position: fixed;
+			top: 30px;
+			width: 100%;
+			height: calc(100% - 30px);
+			transition: height 0.5s, top 0.5s;
+		}
+
+		.tab {
+			display: none;
+			top: 30px;
+			width: 100%;
+			height: 100%;
+		}
+
+		.tab.active {
+			display: block;
+		}
+
+		.settings {
+			display: none;
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			z-index: 1;
+			background-color: rgba(51, 51, 51, 0.2);
+		}
+
+		.settings.active {
+			display: block;
+		}
+
+		.settingsbody {
+			position: fixed;
+			background-color: #666;
+			width: 50vw;
+			height: 70vh;
+			left: 25vw;
+			top: 5vh;
+			padding: 16px;
+			border-radius: 8px;
+			overflow-y: auto;
+		}
+
+		.updatedialog {
+			display: none;
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(51, 51, 51, 0.7);
+			z-index: 99999;
+		}
+
+		.updatedialog.active {
+			display: block;
+		}
+
+		.updatedialogbody {
+			position: fixed;
+			background-color: #666;
+			width: 26vw;
+			left: 37vw;
+			top: 45vh;
+			padding: 16px;
+			border-radius: 8px;
+		}
+
+		.changelog {
+			display: none;
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(51, 51, 51, 0.7);
+			z-index: 99999;
+		}
+
+		.changelog.active {
+			display: flex;
+			flex-flow: column nowrap;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.changelogbody {
+			background-color: #666;
+			padding: 16px;
+			max-width: 50vw;
+			border-radius: 8px;
+		}
+
+		.rolldownbtn {
+			position: fixed;
+			display: none;
+			top: 4px;
+			right: 370px;
+			z-index: 9999;
+			font-size: 32px;
+			color: #eee;
+		}
+
+		#topbar:hover {
+			top: 0px !important;
+		}
+
+		.buttoncontainer {
+			display: flex;
+			flex-flow: row wrap;
+			justify-content: center;
+		}
+
+		.button {
+			flex: 1 1 25%;
+			display: flex;
+			border-radius: 8px;
+			height: 40px;
+			margin: 4px;
+			padding: 4px;
+			background-color: #888;
+			cursor: pointer;
+			justify-content: center;
+			align-items: center;
+			font-size: 20px;
+			transition: background-color 0.1s;
+		}
+
+		.button:hover {
+			background-color: #aaa;
+		}
+
+		.dialogtext {
+			font-size: 20px;
+			margin-top: 0px;
+			margin-bottom: 8px;
+		}
+
+		.important {
+			background-color: rgb(156, 156, 0);
+		}
+
+		.tokenchange {
+			display: none;
+			position: fixed;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(51, 51, 51, 0.7);
+			z-index: 2;
+		}
+
+		.tokenchange.active {
+			display: flex;
+			flex-flow: column nowrap;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.tokenchangebody {
+			display: none;
+			background-color: #666;
+			padding: 16px;
+			border-radius: 8px;
+		}
+
+		.tokenchangebody.active {
+			display: block;
+		}
+	</style>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
+		integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous" />
+</head>
+
+<body>
+	<div class="topbar" id="topbar">
+		<div class="topbar spacer" id="tabbuttons"></div>
+		<div class="titlebutton" id="grabbar" title="Drag the window from here.">
+			&#xf58d;
+		</div>
+		<div class="titlebutton" id="addtab" title="Create a new tab." onclick="addtab(false)">
+			+
+		</div>
+		<div class="titlebutton rollupbtn" title="Collapse the tab bar unless hovered" onclick="rollup()">
+			▲
+		</div>
+		<div class="titlebutton settingsbtn" title="Configure DTabs settings." onclick="settings()">
+			⚙️
+		</div>
+		<div class="titlebutton" onclick="remote.getCurrentWindow().minimize()">
+			_
+		</div>
+		<div class="titlebutton"
+			onclick="remote.getCurrentWindow().isMaximized() ? remote.getCurrentWindow().unmaximize() : remote.getCurrentWindow().maximize()">
+			☐
+		</div>
+		<div class="titlebutton" onclick="remote.getCurrentWindow().destroy()">X</div>
+	</div>
+	<div class="settings">
+		<div class="settingsbody">
+			<h1>Global settings</h1>
+			<input id="injecttoggle" type="checkbox"
+				onclick="localStorage.setItem('injectcss',$('#injecttoggle').checked);setCssState($('#injecttoggle').checked)" />Inject
+			CSS
+			<button id="injectpath" onclick="csspath()">Select file</button>
+			<button id="injectpath" onclick="csspath(true)">Reload CSS</button><br />
+			<input id="baseuriinput" type="text" placeholder="https://discord.com" />
+			<button id="changebaseuri" onclick="changeBaseUri()">
+				Change Base URI</button><br />
+			<h1>Tab settings</h1>
+			<select id="tabselect"></select>
+			<button id="inspecttab" onclick="inspecttab()">Open Devtools</button><br />
+			<input id="tabbaseuriinput" type="text" placeholder="https://discord.com" />
+			<button id="changetabbaseuri" onclick="changeTabBaseUri()">
+				Change Tab Base URI
+			</button>
+			<button id="deletetab" onclick="deletetab()">Delete tab</button>
+			<br />
+			<input id="locktabs" type="checkbox"
+				onclick="localStorage.setItem('tablock',$('#locktabs').checked);lockTabs($('#locktabs').checked)" />Lock
+			tabs
+			<h1>Analytics</h1>
+			Analytics shares some usage data about your usage of DTabs.<br />
+			If disabled, NO data will be sent (none).<br />
+			If enabled, you may configure the amount of data you wish to share with
+			the analytics server.<br />
+			By default, no identifying data will be reported, however, you may choose
+			to share this data if you wish.<br />
+			<br />
+			For any questions or concerns, please contact me
+			<u><a href="javascript:void(0);"
+					onclick="require('electron').shell.openExternal('https:\/\/craftxbox.com/contact')">HERE</a></u><br />
+			<input type="checkbox" id="analytics.enableTotally" onclick="toggleAnalytics('totally')" />Enable
+			Analytics<br />
+			<h3>Forced On (only when Analytics ON):</h3>
+			<input type="checkbox" disabled checked value="meta.system.unique" />Share
+			Unique ID (unidentifiable)<br />
+			<input type="checkbox" disabled checked value="dtabs.version" />Share
+			DTabs Version
+			<h3>
+				On by default:<button onclick="analyticsToggleAll('dfon',false)">
+					All Off</button><button onclick="analyticsToggleAll('dfon',true)">All On</button>
+			</h3>
+			<div id="dfon">
+				<input type="checkbox" id="meta.system.os" checked onclick="toggleAnalytics('meta.system.os')" />Share
+				System OS<br />
+				<input type="checkbox" id="dtabs.css.enabled" checked
+					onclick="toggleAnalytics('dtabs.css.enabled')" />Share CSS Injections status<br />
+				<input type="checkbox" id="dtabs.base.changed" checked
+					onclick="toggleAnalytics('dtabs.base.changed')" />Share Base URI changed status<br />
+				<input type="checkbox" id="dtabs.base.tabs.anychanged" checked
+					onclick="toggleAnalytics('dtabs.base.tabs.anychanged')" />Share Tab Base URIs changed status<br />
+				<input type="checkbox" id="dtabs.tabs.count" checked
+					onclick="toggleAnalytics('dtabs.tabs.count')" />Share Tab count<br />
+				<input type="checkbox" id="dtabs.tabs.rolledup" checked
+					onclick="toggleAnalytics('dtabs.tabs.rolledup')" />Share Tab Bar Rolled Up Status<br />
+				<input type="checkbox" id="dtabs.tabs.locked" checked
+					onclick="toggleAnalytics('dtabs.tabs.locked')" />Share Tab Bar Locked Status<br />
+			</div>
+			<div id="dfoff">
+				<h3>
+					Off by default:<button onclick="analyticsToggleAll('dfoff',false)">
+						All Off</button><button onclick="analyticsToggleAll('dfoff',true)">All On</button>
+				</h3>
+				<input type="checkbox" id="dtabs.base.uri" onclick="toggleAnalytics('dtabs.base.uri')" />Share Global
+				Base URI<br />
+				<input type="checkbox" id="dtabs.tabs.all.id" onclick="toggleAnalytics('dtabs.tabs.all.id')" />Share Tab
+				user IDs<br />
+				<input type="checkbox" id="dtabs.tabs.all.base" onclick="toggleAnalytics('dtabs.tabs.all.base')" />Share
+				Tab Base URIs<br />
+			</div>
+		</div>
+	</div>
+	<div class="updatedialog active">
+		<div class="updatedialogbody">
+			<p class="dialogtext">
+				You have been downgraded to an older version of DTabs.<br>
+				Your installation is <span class="important">UNSUPPORTED</span> and may be unstable.<br>
+				If you encounter any issues, <a href="javascript:void(0);"
+				onclick="require('electron').shell.openExternal('https:\/\/github.com/craftxbox/dtabs/releases')">Update DTabs</a> and try again.
+			</p>
+			<div class="buttoncontainer">
+				<div class="button" onclick="dismissupdate(false)">
+					<p>OK</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="changelog">
+		<div class="changelogbody">
+			<h1>Changelog</h1>
+			DTabs has been updated to Version 10!<br />
+			<br />
+			<table>
+				<tr class="important">
+					<td>[NEW]</td>
+					<td>Analytics reporting, Disable and/or configure this in the Settings menu.</td>
+				</tr>
+				<tr>
+					<td>[NEW]</td>
+					<td>Scrolling tabs, now you can scroll tabs with the mouse wheel if there are too many.</td>
+				</tr>
+				<tr>
+					<td>[NEW]</td>
+					<td>New login flow, No longer polls discord by default.</td>
+				</tr>
+				<tr>
+					<td>[NEW]</td>
+					<td>Added Token-Change flow, which engages whenever your credentials change.</td>
+				</tr>
+				<tr>
+					<td>[NEW]</td>
+					<td>Window drag handle, indicated by <span id="grabbar">&#xf58d;</span> and a dark grey underline.
+					</td>
+				</tr>
+				<tr>
+					<td>[FIX]</td>
+					<td>Fixed a bug with the autoupdater in versions 9 and below.</td>
+				</tr>
+				<tr>
+					<td>[FIX]</td>
+					<td>Fixed video streams. You can now view streams from other people, aswell as share your camera.
+					</td>
+				</tr>
+				<tr>
+					<td>[FIX]</td>
+					<td>Fixed being unable to roll-down tabs when unmaximized.</td>
+				</tr>
+				<tr>
+					<td>[FIX]</td>
+					<td>Tab Roll-up is now unavailable where it would be impractical.</td>
+				</tr>
+				<tr>
+					<td>[IMPR]</td>
+					<td>Improved internal credential structure</td>
+				</tr>
+				<tr>
+					<td>[IMPR]</td>
+					<td>Improved autoupdator for more granular updates.</td>
+				</tr>
+			</table>
+			<br />
+			<div class="buttoncontainer">
+				<div class="button" onclick="$`.changelog`.classList.remove('active');">
+					<p>OK</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tokenchange">
+		<div class="tokenchangebody" id="tchmain">
+			<p class="dialogtext">
+				DTabs detected a credential change on <b id="tokenchangetab"></b>.<br>
+				Have you made a change to your account?<br>
+			</p>
+			<div class="buttoncontainer">
+				<div class="button"
+					onclick="tchrelogorpwch(); $`#tchmain`.classList.remove('active'); $`#tchrelogorpwch`.classList.add('active');">
+					<p>I logged out and back in</p>
+				</div>
+				<div class="button"
+					onclick="tchrelogorpwch(); $`#tchmain`.classList.remove('active'); $`#tchrelogorpwch`.classList.add('active');">
+					<p>I changed my password</p>
+				</div>
+				<div class="button"
+					onclick="$`#tchmain`.classList.remove('active'); $`#tchswitch`.classList.add('active');">
+					<p>I switched accounts</p>
+				</div>
+				<div class="button"
+					onclick="$`#tchmain`.classList.remove('active'); $`#tchusernoaction`.classList.add('active');">
+					<p>No, I didn't</p>
+				</div>
+				<div class="button"
+					onclick="$`#tchmain`.classList.remove('active'); $`#tchignore`.classList.add('active');">
+					<p>Ignore Change</p>
+				</div>
+			</div>
+		</div>
+		<div class="tokenchangebody" id="tchrelogorpwch">
+			<p class="dialogtext">
+				Got it, your new credentials have been saved.
+			</p>
+			<div class="buttoncontainer">
+				<div class="button"
+					onclick="tokenChangeState = null;$`.tokenchange`.classList.remove('active'); $`#tchrelogorpwch`.classList.remove('active');">
+					<p>OK</p>
+				</div>
+			</div>
+		</div>
+		<div class="tokenchangebody" id="tchswitch">
+			<p class="dialogtext">
+				You indicated you have <b class="important">Switched Accounts</b> on this tab.<br>
+				<span class="important">Autofill will make a single automated request to discord servers</span><br>
+				How would you like to proceed?
+			</p>
+			<div class="buttoncontainer">
+				<div class="button"
+					onclick="$`#tchswitch`.classList.remove('active'); $`#tchrename`.classList.add('active');">
+					<p>Rename & Save</p>
+				</div>
+				<div class="button"
+					onclick="tchautofill(); $`#tchswitch`.classList.remove('active'); $`#tchrelogorpwch`.classList.add('active');">
+					<p>Autofill & Save</p>
+				</div>
+				<div class="button"
+					onclick="tokenChangeState = null;$`.tokenchange`.classList.remove('active'); $`#tchswitch`.classList.remove('active');">
+					<p>Don't save</p>
+				</div>
+				<div class="button"
+					onclick="$`#tchmain`.classList.add('active'); $`#tchswitch`.classList.remove('active');">
+					<p>I made a mistake</p>
+				</div>
+			</div>
+		</div>
+		<div class="tokenchangebody" id="tchusernoaction">
+			<p class="dialogtext">
+				Something's wrong here, You have indicated <b class="important">No changes</b> to your account<br>
+				<span class="important">Resolving the conflict will make automated two automated requests to discord
+					servers.</span><br>
+				You may have been logged out, Ignoring this may cause this tab to fail to restore in the future.
+			</p>
+			<div class="buttoncontainer">
+				<div class="button" onclick="tchresolve();">
+					<p>Resolve Conflict</p>
+				</div>
+				<div class="button"
+					onclick="tokenChangeState = null;$`.tokenchange`.classList.remove('active'); $`#tchusernoaction`.classList.remove('active');">
+					<p>Ignore Change</p>
+				</div>
+			</div>
+		</div>
+		<div class="tokenchangebody" id="tchignore">
+			<p class="dialogtext">
+				Are you sure you want to ignore this change?<br>
+				You may have to re-login to this tab later.
+			</p>
+			<div class="buttoncontainer">
+				<div class="button"
+					onclick="tokenChangeState = null;$`.tokenchange`.classList.remove('active'); $`#tchignore`.classList.remove('active');">
+					<p>Yes</p>
+				</div>
+				<div class="button"
+					onclick="$`#tchmain`.classList.add('active'); $`#tchignore`.classList.remove('active');">
+					<p>No</p>
+				</div>
+			</div>
+		</div>
+		<div class="tokenchangebody" id="tchnewtabsetup">
+			<p class="dialogtext">
+				Tab login is complete! Would you like to name this tab or fill your username automatically?
+				<span class="important">Autofill will make a single automated request to discord servers</span>
+			</p>
+			<div class="buttoncontainer">
+				<div class="button"
+					onclick="$`#tchnewtabsetup`.classList.remove('active'); $`#tchrename`.classList.add('active');">
+					<p>Rename Manually</p>
+				</div>
+				<div class="button"
+					onclick="tchautofill(); $`#tchnewtabsetup`.classList.remove('active'); $`#tchrelogorpwch`.classList.add('active');">
+					<p>Autofill Info</p>
+				</div>
+			</div>
+		</div>
+		<div class="tokenchangebody" id="tchrename">
+			<p class="dialogtext">
+				What would you like to name this tab?
+			</p>
+			<input type="text" id="tchrenameinput" placeholder="Tab Name">
+			<div class="buttoncontainer">
+				<div class="button" onclick="tchrename();">
+					<p>Save</p>
+				</div>
+			</div>
+		</div>
+		<div class="tokenchangebody" id="tchresolve">
+			Let's figure out what's going on here.<br>
+			Select correct account below, or the Right button if they are the same.
+			<div class="buttoncontainer">
+				<div class="button" id="tchresolveold">
+					<p>Loading...</p>
+				</div>
+				<div class="button" id="tchresolvenew">
+					<p>Loading...</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="mainbody"></div>
+</body>
+<script src="https://unpkg.com/axios@0.27.2/dist/axios.min.js"></script>
+<script>
+	// VERSION=99;
+	const VERSION = "VERSION2=10.0;";
+	// This probably looks super weird, but, only change VERSION2. The simple explanation to why this is required is that versions <=9 have a broken version checker.
+	// Anyone who had v9 is permanently stuck on v9 unless they reinstall... whoops.
+
+	const $ = document.querySelector.bind(document);
+	const $$ = document.querySelectorAll.bind(document);
+
+	const crypto = require("crypto");
+	const fs = require("fs");
+	const path = require("path");
+	const process = require("process");
+	const { remote } = require("electron")
+
+	var baseuri = localStorage.getItem("baseuri") || "https://discord.com";
+
+	let tokenChangeState = null;
+	let tokenChangeQueue = [];
+
+	$`#tabbuttons`.addEventListener("wheel", (event) => {
+		let target = $`#tabbuttons`;
+		const toLeft = event.deltaY < 0 && target.scrollLeft > 0;
+		const toRight = event.deltaY > 0 && target.scrollLeft < target.scrollWidth - target.clientWidth;
+
+		if (toLeft || toRight) {
+			event.preventDefault();
+			target.scrollLeft += event.deltaY;
+		}
+	});
+	var bWindow = remote.BrowserWindow.getFocusedWindow();
+
+	if (localStorage.getItem("uniqueId") == null) {
+		//probably the dumbest line of code i have ever written.
+		localStorage.setItem("uniqueId", crypto.createHash("sha256").update(crypto.randomBytes(1024)).digest("hex"));
+	}
+
+	function onresize() {
+		bWindow = remote.getCurrentWindow()
+		if (!bWindow.isMaximized()) {
+			//force rolled down when unmaximized
+			$`.rollupbtn`.style = "display:none";
+			$`#topbar`.style = "top:0px;";
+			$`.mainbody`.style = "top:30px;";
+		} else {
+			$`.rollupbtn`.style = "display:block";
+			if (localStorage.getItem("rolledup") == "true") {
+				$`#topbar`.style = "top:-27px;";
+				$`.mainbody`.style = "height: 100%; top:3px;";
+			} else {
+				$`#topbar`.style = "top:0px;";
+				$`.mainbody`.style = "top:30px;";
+			}
+		}
+	}
+
+	window.addEventListener("resize", () => {
+		onresize();
+	});
+
+	onresize();
+
+	// this is the file we get to check for updates. Change this if you're forking, otherwise you're just going to be autoupdating against the downstream :)
+	const indexHtmlFileGitRawUrl = "https://raw.githubusercontent.com/craftxbox/DTabs/master/index.html";
+
+	let tabtokens = {};
+	let csskeys = {};
+
+	$`#injecttoggle`.checked = localStorage.getItem("injectcss") == "true";
+	$`#locktabs`.checked = localStorage.getItem("tablock") == "true";
+	$`#injectpath`.textContent = localStorage.getItem("csspath") || "Select file";
+	lockTabs(localStorage.getItem("tablock") == "true");
+
+	function lockTabs(lock) {
+		if (lock) {
+			$`#addtab`.style = "display:none;";
+			$`#deletetab`.style = "display:none;";
+		} else {
+			$`#addtab`.style = "display:block;";
+			$`#deletetab`.style = "display:block;";
+		}
+		updateAnalytics();
+	}
+
+	function rollup() {
+		$`#topbar`.style = "top:-27px;";
+		$`.rollupbtn`.setAttribute("onclick", "rolldown()");
+		$`.rollupbtn`.textContent = "▼";
+		$`.mainbody`.style = "height: 100%; top:3px;";
+		localStorage.setItem("rolledup", true);
+		updateAnalytics();
+	}
+
+	function rolldown() {
+		$`#topbar`.style = "top:0px;";
+		$`.rollupbtn`.setAttribute("onclick", "rollup()");
+		$`.rollupbtn`.textContent = "▲";
+		$`.mainbody`.style = "top:30px;";
+		localStorage.setItem("rolledup", false);
+		updateAnalytics();
+	}
+
+	function settings() {
+		$`#tabselect`.innerHTML = "";
+		for (var i of $("#tabbuttons").children) {
+			if (i.classList.length < 2) continue;
+			if (i.classList[1] == "settingsbtn" || i.classList[1] == "rollupbtn") continue;
+			var sel = document.createElement("option");
+			sel.setAttribute("value", i.classList[2]);
+			sel.textContent = i.innerHTML;
+			$`#tabselect`.appendChild(sel);
+		}
+		if ($`.settings.active` != null) {
+			$`.settingsbtn`.classList.remove("active");
+			$`.settings`.classList.remove("active");
+			return;
+		}
+		$`.settingsbtn`.classList.add("active");
+		$`.settings`.classList.add("active");
+	}
+
+	var updatecontents = "";
+	var checkdisabled = false;
+	var verregex = /VERSION2=(\d+)(?:\.(\d+))?;/;
+	var oldverregex = /VERSION=(\d+);/;
+	var instance = axios.create({
+		validateStatus: (a) => {
+			return true;
+		},
+	});
+
+	//only major changes trigger changelog. Minor changes will only be bugfixes anyways.
+	if (localStorage.getItem("lastVersion") == null ||
+		parseInt(localStorage.getItem("lastVersion").match(verregex)[1]) < parseInt(VERSION.match(verregex)[1])) {
+		localStorage.setItem("lastVersion", VERSION);
+		$`.changelog`.classList.add("active");
+	}
+
+	function updateAnalytics() {
+		if (_paq == null) return;
+		if (localStorage.getItem("analytics.meta.system.os") !== "false")
+			_paq.push([
+				"setCustomDimension",
+				(customDimensionId = 3),
+				(customDimensionValue = process.platform),
+			]);
+		if (localStorage.getItem("analytics.dtabs.css.enabled") !== "false")
+			_paq.push([
+				"setCustomDimension",
+				(customDimensionId = 5),
+				(customDimensionValue = localStorage.getItem("injectcss")),
+			]);
+		if (localStorage.getItem("analytics.dtabs.base.changed") !== "false")
+			_paq.push([
+				"setCustomDimension",
+				(customDimensionId = 6),
+				(customDimensionValue = localStorage.getItem("baseuri") != "https://discord.com"),
+			]);
+		if (localStorage.getItem("analytics.dtabs.base.tabs.anychanged") !== "false") {
+			let anyChanged = false;
+			for (var i of Object.values(tabtokens)) {
+				if (i.baseuri != "https://discord.com") {
+					anyChanged = true;
+					break;
+				}
+			}
+			_paq.push(["setCustomDimension", (customDimensionId = 7), (customDimensionValue = anyChanged)]);
+		}
+		if (localStorage.getItem("analytics.dtabs.tabs.count") !== "false")
+			_paq.push([
+				"setCustomDimension",
+				(customDimensionId = 8),
+				(customDimensionValue = Object.keys(tabtokens).length),
+			]);
+		if (localStorage.getItem("analytics.dtabs.tabs.rolledup") !== "false")
+			_paq.push([
+				"setCustomDimension",
+				(customDimensionId = 9),
+				(customDimensionValue = localStorage.getItem("rolledup")),
+			]);
+		if (localStorage.getItem("analytics.dtabs.tabs.locked") !== "false")
+			_paq.push([
+				"setCustomDimension",
+				(customDimensionId = 4),
+				(customDimensionValue = localStorage.getItem("tablock")),
+			]);
+		if (localStorage.getItem("analytics.dtabs.base.uri") === "true")
+			_paq.push([
+				"setCustomDimension",
+				(customDimensionId = 10),
+				(customDimensionValue = localStorage.getItem("baseuri")),
+			]);
+		if (localStorage.getItem("analytics.dtabs.tabs.all.base") === "true") {
+			let bases = [];
+			for (var i of Object.values(tabtokens)) {
+				bases.push(i.baseuri);
+			}
+			_paq.push(["setCustomDimension", (customDimensionId = 11), (customDimensionValue = JSON.stringify(bases))]);
+		}
+		if (localStorage.getItem("analytics.dtabs.tabs.all.id") === "true") {
+			_paq.push([
+				"setCustomDimension",
+				(customDimensionId = 12),
+				(customDimensionValue = JSON.stringify(Object.keys(tabtokens))),
+			]);
+		}
+		_paq.push(["trackEvent", "analytics", "update"]);
+	}
+
+	//dont even bother loading matomo if we already opted out.
+	if (localStorage.getItem("analytics.enableTotally") !== "false") {
+		var _paq = (window._paq = window._paq || []);
+		/* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+		_paq.push(["setCustomDimension", (customDimensionId = 2), (customDimensionValue = VERSION)]);
+		_paq.push(["forgetUserOptOut"]); //If you opt out this code should never run, but it should if you ever opt back in
+		updateAnalytics();
+		_paq.push(["setUserId", localStorage.getItem("uniqueId")]);
+		_paq.push(["trackPageView"]);
+		_paq.push(["enableHeartBeatTimer", 1200]);
+		(function () {
+			var u = "https://crxb.cc/protected/matomo/";
+			_paq.push(["setTrackerUrl", u + "matomo.php"]);
+			_paq.push(["setSiteId", "1"]);
+			var d = document,
+				g = d.createElement("script"),
+				s = d.getElementsByTagName("script")[0];
+			g.type = "text/javascript";
+			g.async = true;
+			g.src = u + "matomo.js";
+			s.parentNode.insertBefore(g, s);
+		})();
+
+		let analyticsKeys = Object.keys({ ...localStorage }).filter((i) => i.startsWith("analytics."));
+		console.log(analyticsKeys);
+		$`#analytics\\.enableTotally`.setAttribute("checked", localStorage.getItem("analytics.enableTotally") !== "false");
+		for (var i of analyticsKeys) {
+			if (localStorage.getItem(i) === "true")
+				$(`#${i.split("analytics.")[1].replaceAll(".", "\\.")}`).setAttribute("checked", true);
+			else if (localStorage.getItem(i) === "false")
+				$(`#${i.split("analytics.")[1].replaceAll(".", "\\.")}`).removeAttribute("checked");
+		}
+	}
+
+	function toggleAnalytics(path) {
+		if (path == "totally") {
+			if (localStorage.getItem("analytics.enableTotally") !== "false") {
+				localStorage.setItem("analytics.enableTotally", false);
+				_paq.push(["optUserOut"]);
+			} else {
+				localStorage.setItem("analytics.enableTotally", true);
+				alert("Analytics will be enabled at next restart. Thank you for your support.");
+			}
+			return;
+		} else {
+			if (localStorage.getItem(`analytics.${path}`) !== "false" /*true by default*/)
+				localStorage.setItem(`analytics.${path}`, false);
+			else if (localStorage.getItem(`analytics.${path}`) === "false") localStorage.setItem(`analytics.${path}`, true);
+		}
+		updateAnalytics();
+	}
+
+	function analyticsToggleAll(domain, to) {
+		let analyticsKeys = [...$$(`#${domain} input`)].map((i) => i.id);
+		for (var i of analyticsKeys) {
+			localStorage.setItem(`analytics.${i}`, to);
+		}
+		updateAnalytics();
+	}
+
+	function updatecheck(noprompt) {
+		return;
+	}
+
+	function update() {
+		$`.updatedialog`.classList.add("active");
+		$`.updatedialogbody`.setAttribute("style", "display:none;");
+		if (_paq) _paq.push(["trackEvent", "update", "accept"]);
+		updatecheck(true);
+		fs.renameSync(path.resolve(__dirname, "index.html"), path.resolve(__dirname, "index.html.OLD-" + Date.now()));
+		fs.writeFileSync(path.resolve(__dirname, "index.html"), updatecontents, "utf8");
+		alert("Update has been applied, DTabs will now exit.");
+		remote.getCurrentWindow().destroy()
+	}
+
+	function dismissupdate(dontask) {
+		checkdisabled = dontask;
+		$`.updatedialog`.classList.remove("active");
+		if (_paq) _paq.push(["trackEvent", "update", "dismiss" + (dontask ? "DontAskAgain" : "")]);
+	}
+
+	function changeBaseUri() {
+		if (!confirm("Changing the global base URI may result in unexpected issues! Did you mean to do this?")) return;
+		baseuri = $`#baseuriinput`.value;
+		localStorage.setItem("baseuri", baseuri);
+		alert("Please restart DTabs for this to fully take effect!");
+		updateAnalytics();
+	}
+
+	function changeTabBaseUri() {
+		if (!confirm("Changing the base URI may result in unexpected issues! Did you mean to do this?")) return;
+		var newuri = $`#tabbaseuriinput`.value;
+		deletetab();
+		addtab(false, null, newuri, newuri);
+		updateAnalytics();
+	}
+
+	function csspath(reload = false) {
+		if (!reload) {
+			const { dialog } = remote;
+			let e = dialog.showOpenDialog({ properties: ["openFile"] });
+			if (e != null) {
+				localStorage.setItem("csspath", e[0]);
+				$`#injectpath`.textContent = localStorage.getItem("csspath") || "Select file";
+			}
+		}
+		if (
+			localStorage.getItem("injectcss") == "true" &&
+			localStorage.getItem("injectcss") &&
+			localStorage.getItem("csspath") != null
+		) {
+			var cssfile = fs.readFileSync(localStorage.getItem("csspath")).toString();
+			for (var i of $$("webview")) {
+				i.executeJavaScript(`document.querySelector('.DTABSCSS') != null ? document.head.removeChild(document.querySelector('.DTABSCSS')) : null;
+								var style = document.createElement('style');
+								style.setAttribute('class','DTABSCSS');
+								style.appendChild(document.createTextNode(\`${cssfile.replace(/[\n`]/g, "")}\`));
+								document.querySelector('head').appendChild(style);0`);
+			}
+		}
+	}
+
+	function setCssState(enable) {
+		if (enable) {
+			csspath(true);
+		} else {
+			for (var i of $$("webview")) {
+				i.executeJavaScript(
+					`document.querySelector('.DTABSCSS') != null ? document.head.removeChild(document.querySelector('.DTABSCSS')) : null;0`
+				);
+			}
+		}
+	}
+
+	function getWebContents(view) {
+		const { webContents } = remote;
+		return webContents.fromId(view.getWebContentsId());
+	}
+
+	tabtokens = JSON.parse(localStorage.getItem("tabs")) || {};
+
+	if (tabtokens._version == undefined) {
+		//convert tab tokens to new format
+		let oldtokens = tabtokens;
+		localStorage.setItem("oldtabs", JSON.stringify(oldtokens));
+		let newtokens = { _version: 1 };
+		for (let i of Object.keys(oldtokens)) {
+			oldtoken = oldtokens[i].replace(/http(s?):/, "http$1;");
+			console.log(oldtoken)
+			newtokens[i] = {};
+			newtokens[i].token = oldtoken.split`:`[0];
+			newtokens[i].title = oldtoken.split`:`[1];
+			if (oldtoken.split`:`.length > 2) {
+				newtokens[i].baseuri = oldtoken.split`:`[2].replace(";", ":");
+			}
+		}
+		tabtokens = newtokens;
+		localStorage.setItem("tabs", JSON.stringify(tabtokens));
+		window.location.reload();
+	}
+
+	let tabsuninit = Object.keys(tabtokens);
+
+	function savetabs() {
+		window.localStorage.setItem("tabs", JSON.stringify(tabtokens));
+	}
+
+	var pastfirsttab = false;
+	async function inittabs() {
+		if (tabsuninit.length < 1) {
+			csspath(true);
+			if (localStorage.getItem("rolledup") == "true") {
+				rollup();
+			}
+			updatecheck();
+			return;
+		}
+		let i = tabsuninit.shift();
+		if (i == "_version") {
+			inittabs();
+			return;
+		}
+		var tabbaseuri = baseuri;
+		var tabtoken = tabtokens[i].token;
+		tabbaseuri = tabtokens[i].baseuri || tabbaseuri;
+		addtab(true, i, tabtokens[i].title, tabbaseuri);
+		if (!pastfirsttab) {
+			activetab(i);
+			pastfirsttab = true;
+		}
+		view = $("." + i + " webview");
+		view.addEventListener("dom-ready", function inject() {
+			view.removeEventListener("dom-ready", inject);
+			view.loadURL(tabbaseuri + "/api/");
+			view.addEventListener("dom-ready", function inject1() {
+				view.removeEventListener("dom-ready", inject1);
+				view.executeJavaScript(
+					"localStorage.setItem('token','\"" +
+					tabtoken +
+					"\"');console.log(localStorage);window.location.href='/app';0"
+				);
+				inittabs();
+			});
+		});
+	}
+
+	function addtab(dirty, name = null, title = null, tabbaseuri = baseuri) {
+		if (!dirty && localStorage.getItem("tablock") == "true") {
+			alert("Tabs are locked. Please unlock before attempting to add another tab.");
+			return "Tabs are locked. Please unlock before attempting to add another tab.";
+		}
+		let tabbutton = document.createElement("div");
+		let tabs = $("#tabbuttons").children.length;
+		name = name != null ? name : "tab" + (tabs + 1)
+		tabbutton.classList.add("titlebutton");
+		tabbutton.classList.add("titletab");
+		tabbutton.classList.add("title" + (name));
+		tabbutton.setAttribute("onclick", "activetab('" + (name) + "')");
+		tabbutton.textContent = title != null ? title : "Tab #" + (tabs + 1);
+		$("#tabbuttons").appendChild(tabbutton);
+		let tab = document.createElement("div");
+		let tabinner = document.createElement("webview");
+		tab.classList.add("tab");
+		tab.classList.add(name);
+		tabinner.setAttribute("style", "width:100%;height:100%");
+		tabinner.setAttribute("src", tabbaseuri != baseuri ? tabbaseuri : baseuri + "/login");
+		tabinner.setAttribute("webpreferences", "nativeWindowOpen=true");
+		tabinner.setAttribute("allowpopups", true);
+		tabinner.setAttribute("plugins", true);
+		tabinner.setAttribute("partition", "persist:" + (name));
+		tabinner.setAttribute(
+			"useragent",
+			"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
+		);
+		tabinner.addEventListener("dom-ready", () => {
+			getWebContents(tabinner).session.webRequest.onBeforeSendHeaders(
+				{ urls: [tabbaseuri + "/api/v*/users/@me/*"] },
+				(details, callback) => {
+					if (!details.requestHeaders["Authorization"]) {
+						console.log("Weird users/@me request didnt have an auth header.");
+						callback(details);
+						return;
+					}
+					if (!dirty && name.startsWith("tab")) {
+						tabbutton.classList.remove("title" + (name));
+						tab.classList.remove(name);
+						console.log(name)
+						name = "t" + atob(details.requestHeaders["Authorization"].split`.`[0]);
+						tabbutton.classList.add("title" + (name));
+						tab.classList.add(name);
+						tabinner.setAttribute("partition", "persist:" + (name));
+						tabtokens[name] = { title: name, token: "", baseuri: tabbaseuri };
+					}
+					handleToken(details, name, tabbaseuri, dirty);
+
+					callback(details);
+				}
+			);
+		});
+		tabinner.addEventListener("dom-ready", () => {
+			if (
+				localStorage.getItem("injectcss") == "true" &&
+				localStorage.getItem("injectcss") &&
+				localStorage.getItem("csspath") != null
+			) {
+				csspath(true);
+			}
+		});
+		tab.appendChild(tabinner);
+		$(".mainbody").appendChild(tab);
+		if (dirty == false) {
+			updateAnalytics();
+			activetab(name);
+		}
+	}
+
+	async function handleToken(details, name, baseuri, dirty) {
+		if (details.requestHeaders["Authorization"]) {
+			var token = details.requestHeaders["Authorization"]
+
+			// check the changestate if we already handled this token
+			if (tokenChangeState != null && tokenChangeState.newToken == token) {
+				return
+			}
+
+			// check the changequeue if we already populated this token
+			for (var i = 0; i < tokenChangeQueue.length; i++) {
+				if (tokenChangeQueue[i].newToken == token) {
+					return
+				}
+			}
+
+			if (dirty && tabtokens[name].token != token) {
+				tokenChangeQueue.push({ active: true, newToken: token, tab: name })
+				console.log("token change on dirty tab " + name)
+			} else if (!dirty) {
+				tokenChangeQueue.unshift({ active: false, newToken: token, tab: name })
+				console.log("credential capture on new tab " + name)
+			}
+		}
+
+		processTokenQueue()
+	}
+
+	async function processTokenQueue() {
+		if (tokenChangeQueue.length > 0 && tokenChangeState == null) {
+			tokenChangeState = tokenChangeQueue.shift()
+			_ = [...$$(".tokenchange .tokenchangebody")].map(e => e.classList.remove("active"))
+			$`.tokenchange`.classList.add("active")
+			if (tokenChangeState.active) {
+				$`#tchmain`.classList.add("active")
+				$`#tokenchangetab`.textContent = tabtokens[tokenChangeState.tab].title
+			} else {
+				$`#tchnewtabsetup`.classList.add("active")
+			}
+
+		}
+	}
+
+	setInterval(processTokenQueue, 5000)
+
+	function deletetab() {
+		if (localStorage.getItem("tablock") == "true") {
+			alert("Tabs are locked. Please unlock before attempting to delete a tab.");
+			return "Tabs are locked. Please unlock before attempting to delete a tab.";
+		}
+		var i = $`#tabselect`.value;
+		tabtokens[i.replace("title", "")] = undefined;
+		var { session } = remote;
+		session.fromPartition($("." + i.replace("title", "") + " webview").getAttribute("partition")).clearStorageData({
+			storages: [
+				"appcache",
+				"cache",
+				"cookies",
+				"sessionCookies",
+				"persistentCookies",
+				"fileSystems",
+				"indexedDB",
+				"localStorage",
+				"webSQL",
+			],
+		});
+		$("." + i).remove();
+		$(".tab." + i.replace("title", "")).remove();
+
+		savetabs();
+		updateAnalytics();
+	}
+
+	function inspecttab() {
+		var i = $`#tabselect`.value;
+		var webview = $("." + i.replace("title", "") + " webview");
+		webview.openDevTools();
+	}
+
+	function activetab(no) {
+		if ($(".titlebutton.active") == $(".title" + no)) return;
+		try {
+			if ($(".titlebutton.active") != null) $(".titlebutton.active").classList.remove("active");
+			$(".tab.active").classList.remove("active");
+		} catch (e) { }
+		$(".title" + no).classList.add("active");
+		$("." + no).classList.add("active");
+	}
+
+	function tchresolve() {
+		$`#tchusernoaction`.classList.remove('active');
+		$`#tchresolve`.classList.add('active');
+
+		//request users/@me and get the username
+		instance.get((tabtokens[tokenChangeState.tab].baseuri || baseuri) + '/api/v9/users/@me', {
+			headers: {
+				Authorization: tokenChangeState.newToken
+			}
+		}).then(function (response) {
+			if (response.status == 200) {
+				var data = response.data
+				$`#tchresolvenew p`.textContent = `${data.username}#${data.discriminator}`;
+				$`#tchresolvenew`.setAttribute("onclick", "$`.tokenchange`.classList.remove('active'); $`#tchresolve`.classList.remove('active'); tchresolvenew();")
+			} else {
+				$`#tchresolvenew p`.textContent = 'Invalid Token';
+			}
+		}).catch(function (error) {
+			$`#tchresolvenew p`.textContent = 'Invalid Token';
+		});
+
+		instance.get((tabtokens[tokenChangeState.tab].baseuri || baseuri) + '/api/v9/users/@me', {
+			headers: {
+				Authorization: tabtokens[tokenChangeState.tab].token
+			}
+		}).then(function (response) {
+			if (response.status == 200) {
+				var data = response.data
+				$`#tchresolveold p`.textContent = `${data.username}#${data.discriminator}`;
+				$`#tchresolveold`.setAttribute("onclick", "tokenChangeState = null;$`.tokenchange`.classList.remove('active'); $`#tchresolve`.classList.remove('active');")
+			} else {
+				$`#tchresolveold p`.textContent = 'Invalid Token';
+			}
+		}).catch(function (error) {
+			$`#tchresolvenew p`.textContent = 'Invalid Token';
+		});
+
+		setTimeout(() => {
+			//if tchresolveold and tchresolvenew are both invalid
+			if ($`#tchresolveold p`.textContent == 'Invalid Token' && $`#tchresolvenew p`.textContent == 'Invalid Token') {
+				$`.tokenchange`.classList.remove('active');
+				$`#tchresolve`.classList.remove('active');
+				alert("Both old and new tokens are invalid. This shouldn't be possible, but you'll probably have to relog soon.")
+				tokenChangeState = null;
+			}
+		}, 5000)
+	}
+
+	function tchresolvenew() {
+		tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
+		savetabs();
+		tokenChangeState = null;
+	}
+
+	function tchrename() {
+		$`#tchrename`.classList.remove('active');
+		$`#tchrelogorpwch`.classList.add('active');
+
+		tabtokens[tokenChangeState.tab].title = $`#tchrenameinput`.value;
+		tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
+		$(`.titlebutton.title` + tokenChangeState.tab).textContent = tabtokens[tokenChangeState.tab].title;
+		savetabs();
+		tokenChangeState = null;
+	}
+
+	function tchautofill() {
+		instance.get((tabtokens[tokenChangeState.tab].baseuri || baseuri) + '/api/v9/users/@me', {
+			headers: {
+				Authorization: tokenChangeState.newToken
+			},
+			validateStatus
+		}).then(function (response) {
+			if (response.status == 200) {
+				var data = response.data
+				tabtokens[tokenChangeState.tab].title = `${data.username}#${data.discriminator}`;
+				tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
+				$(`.titlebutton.title` + tokenChangeState.tab).textContent = tabtokens[tokenChangeState.tab].title;
+				savetabs();
+				tokenChangeState = null;
+			} else {
+				alert("Got error code " + response.status + " when trying to autofill. Please name the tab manually.")
+				tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
+				$`.tokenchange`.classList.add('active');
+				$`#tchrelogorpwch`.classList.remove('active');
+				$`#tchrename`.classList.add('active');
+				savetabs();
+			}
+		}).catch(function (error) {
+			console.log(error);
+			alert("Caught exception when trying to autofill. Please name the tab manually.")
+			tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
+			$`.tokenchange`.classList.add('active');
+			$`#tchrelogorpwch`.classList.remove('active');
+			$`#tchrename`.classList.add('active');
+			savetabs();
+		});
+	}
+
+	function tchrelogorpwch() {
+		tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
+		savetabs();
+		tokenChangeState = null;
+	}
+
+	inittabs();
+</script>
