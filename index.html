@@ -603,7 +603,7 @@
 	const fs = require("fs");
 	const path = require("path");
 	const process = require("process");
-	const { remote } = require("electron")
+	const remote = require("@electron/remote")
 
 	var baseuri = localStorage.getItem("baseuri") || "https://discord.com";
 
@@ -946,11 +946,16 @@
 	function csspath(reload = false) {
 		if (!reload) {
 			const { dialog } = remote;
-			let e = dialog.showOpenDialog({ properties: ["openFile"] });
-			if (e != null) {
-				localStorage.setItem("csspath", e[0]);
+			dialog.showOpenDialog({ properties: ["openFile"] }).then((e) => {
+				if (e && e.filePaths) {
+					localStorage.setItem("csspath", e.filePaths[0]);
 				$`#injectpath`.textContent = localStorage.getItem("csspath") || "Select file";
+					if (e[0] != null) {
+						csspath();
 			}
+				}
+			});
+			return;
 		}
 		if (
 			localStorage.getItem("injectcss") == "true" &&
@@ -1283,7 +1288,9 @@
 			headers: {
 				Authorization: tokenChangeState.newToken
 			},
-			validateStatus
+			validateStatus: (a) => {
+				return true;
+			},
 		}).then(function (response) {
 			if (response.status == 200) {
 				var data = response.data
