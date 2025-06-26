@@ -1,9 +1,9 @@
-const { app, BrowserWindow, session, shell, dialog } = require('electron')
+const { app, BrowserWindow, session, shell, dialog, protocol } = require('electron')
 const fs = require("fs");
 const path = require("path");
 require('@electron/remote/main').initialize()
 
-const version = 6;
+const version = 7;
 
 let mainWindow
 
@@ -66,4 +66,15 @@ app.on('web-contents-created', function (webContentsCreatedEvent, contents) {
       return { action: 'deny' };
     });
   }
+  contents.on('will-attach-webview', (_wawevent, webPreferences, _params) => {
+    webPreferences.contextIsolation = false;
+    webPreferences.sandbox = false;
+  });
 });
+
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'http', privileges: { standard: true, bypassCSP: true, allowServiceWorkers: true, supportFetchAPI: true, corsEnabled: true, stream: true } },
+  { scheme: 'https', privileges: { standard: true, bypassCSP: true, allowServiceWorkers: true, supportFetchAPI: true, corsEnabled: true, stream: true } },
+  { scheme: 'file', privileges: { standard: true, bypassCSP: true, allowServiceWorkers: true, supportFetchAPI: true, corsEnabled: true, stream: true } },
+  { scheme: 'mailto', privileges: { standard: true } },
+]);

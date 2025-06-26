@@ -1,0 +1,1 @@
+export const VERSION = (window as any).VERSION
