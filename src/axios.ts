@@ -1,0 +1,1 @@
+export const instance = (window as any).instance as typeof import("axios").default;

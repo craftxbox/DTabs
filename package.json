@@ -1,34 +1,35 @@
 {
-  "name": "dtabs",
-  "productName": "DTabs",
-  "description": "Tabbed wrapper for Web Discord clients.",
-  "keywords": [],
-  "main": "./main.js",
-  "version": "1.0.0",
-  "author": "craftxbox",
-  "scripts": {
-    "postinstall": "install-app-deps",
-    "start": "npm install && electron ./",
-    "pack": "build --dir",
-    "dist": "build"
-  },
-  "license": "NCMIT",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/craftxbox/dtabs.git"
-  },
-  "dependencies": {
-    "@electron/remote": "^2.0.12"
-  },
-  "devDependencies": {
-    "electron-builder": "^24.6.4",
-    "electron": ">=27.0.3"
-  },
-  "build": {
-    "appId": "dtabs",
-    "category": "dtabs",
-    "win": {
-      "target": "nsis"
+    "name": "dtabs",
+    "productName": "DTabs",
+    "description": "Tabbed wrapper for Web Discord clients.",
+    "keywords": [],
+    "main": "./main.js",
+    "version": "1.0.0",
+    "author": "craftxbox",
+    "scripts": {
+        "build": "npx tsc; npx rollup dist/index.js --file dist/index.packed.js --format esm --sourcemap;",
+        "start": "npm run build; electron ."
+    },
+    "license": "NCMIT",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/craftxbox/dtabs.git"
+    },
+    "dependencies": {
+        "@electron/remote": "^2.0.12"
+    },
+    "devDependencies": {
+        "@electron/packager": "^18.3.6",
+        "axios": "^1.10.0",
+        "electron": "^27.0.3",
+        "rollup": "^4.44.1",
+        "typescript": "~5.8.3"
+    },
+    "build": {
+        "appId": "dtabs",
+        "category": "dtabs",
+        "win": {
+            "target": "nsis"
+        }
     }
-  }
 }
