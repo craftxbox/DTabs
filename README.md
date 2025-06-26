@@ -1,7 +1,8 @@
 # DTabs
 Tabbed electron wrapper for discord Web-Client with CSS injections.
 
-Grab the [latest release](https://github.com/craftxbox/DTabs/releases/latest)
+## Join the [Community Discord](https://discord.gg/AYSWJfp7Nc)  
+## Grab the [latest release](https://github.com/craftxbox/DTabs/releases/latest)
 
 <img src="https://transfur.science/yiz48vbr" alt="UI example screenshot" height="400">
 
