@@ -16,12 +16,12 @@
         "url": "git://github.com/craftxbox/dtabs.git"
     },
     "dependencies": {
-        "@electron/remote": "^2.0.12"
+        "@electron/remote": "^2.1.2"
     },
     "devDependencies": {
         "@electron/packager": "^18.3.6",
         "axios": "^1.10.0",
-        "electron": "^27.0.3",
+        "electron": "^37.2.0",
         "rollup": "^4.44.1",
         "typescript": "~5.8.3"
     },
