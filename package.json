@@ -21,8 +21,8 @@
     "@electron/remote": "^2.0.12"
   },
   "devDependencies": {
-    "electron-builder": "^24.6.4",
-    "electron": ">=27.0.3"
+    "electron-builder": "^24.13.3",
+    "electron": ">=37.2.0"
   },
   "build": {
     "appId": "dtabs",
