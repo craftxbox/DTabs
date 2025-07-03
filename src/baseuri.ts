@@ -16,7 +16,7 @@ export function changeBaseUri() {
     updateAnalytics();
 }
 
-$("changebaseuri")?.addEventListener("click", changeBaseUri);
+$("#changebaseuri")?.addEventListener("click", changeBaseUri);
 
 export function changeTabBaseUri() {
     if (!confirm("Changing the base URI may result in unexpected issues! Did you mean to do this?")) return;
@@ -26,4 +26,4 @@ export function changeTabBaseUri() {
     updateAnalytics();
 }
 
-$("changetabbaseuri")?.addEventListener("click", changeTabBaseUri);
+$("#changetabbaseuri")?.addEventListener("click", changeTabBaseUri);

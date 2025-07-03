@@ -20,7 +20,7 @@ function changeBaseUri() {
     alert("Please restart DTabs for this to fully take effect!");
     updateAnalytics();
 }
-$("changebaseuri")?.addEventListener("click", changeBaseUri);
+$("#changebaseuri")?.addEventListener("click", changeBaseUri);
 function changeTabBaseUri() {
     if (!confirm("Changing the base URI may result in unexpected issues! Did you mean to do this?"))
         return;
@@ -29,7 +29,7 @@ function changeTabBaseUri() {
     addtab(false, undefined, newuri, newuri);
     updateAnalytics();
 }
-$("changetabbaseuri")?.addEventListener("click", changeTabBaseUri);
+$("#changetabbaseuri")?.addEventListener("click", changeTabBaseUri);
 
 const { session } = require("@electron/remote");
 let tabtokens = {};
@@ -124,6 +124,7 @@ function deletetab(tab) {
     session.fromPartition(partition).clearStorageData();
     $("." + tabId)?.remove();
     $(".tab." + tabId.replace("title", ""))?.remove();
+    $(`.titlebutton.title${tabId.replace("title", "")}`)?.remove();
     savetabs();
     updateAnalytics();
 }

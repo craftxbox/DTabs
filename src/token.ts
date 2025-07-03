@@ -132,6 +132,8 @@ export function deletetab(tab?: string) {
 
     $(".tab." + tabId.replace("title", ""))?.remove();
 
+    $(`.titlebutton.title${tabId.replace("title", "")}`)?.remove();
+
     savetabs();
     updateAnalytics();
 }
