@@ -8,6 +8,7 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -29,24 +30,38 @@ jobs:
     - run: npm ci
     - run: sudo apt-get update
     - run: sudo apt-get install -y wine64 
-    - run: npm i electron-packager@15.5.1 -g
-    - run: electron-packager . --platform win32 --arch x64 --icon './dtabs.ico'
-    - run: electron-packager . --platform darwin --arch x64 --icon './dtabs.ico'
-    - run: electron-packager . --platform linux --arch x64 --icon './dtabs.ico'
+    
+    - run: npm run build
+    - run: ./ci.sh
+    - run: npx @electron/packager build --platform win32 --arch x64 --icon './dtabs.ico'
+    - run: npx @electron/packager build --platform darwin --arch x64 --icon './dtabs.icns'
+    - run: npx @electron/packager build --platform darwin --arch arm64 --icon './dtabs.icns'
+    - run: npx @electron/packager build --platform linux --arch x64 --icon './dtabs.ico'
+    - run: npx @electron/packager build --platform linux --arch arm64 --icon './dtabs.ico'
     
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.1.0
+      uses: actions/upload-artifact@v4
       with:
-        name: DTabs_windows_${{github.ref_name}}_${{github.sha}}
+        name: DTabs_windows_x64_${{github.ref_name}}_${{github.sha}}
         path: ./DTabs-win32-x64
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.1.0
+      uses: actions/upload-artifact@v4
       with:
-        name: DTabs_macos_${{github.ref_name}}_${{github.sha}}
+        name: DTabs_macos_x64_${{github.ref_name}}_${{github.sha}}
         path: ./DTabs-darwin-x64
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.1.0
+      uses: actions/upload-artifact@v4
       with:
-        name: DTabs_linux_${{github.ref_name}}_${{github.sha}}
+        name: DTabs_macos_arm_${{github.ref_name}}_${{github.sha}}
+        path: ./DTabs-darwin-arm64
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DTabs_linux_x86_${{github.ref_name}}_${{github.sha}}
         path: ./DTabs-linux-x64
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DTabs_linux_arm_${{github.ref_name}}_${{github.sha}}
+        path: ./DTabs-linux-arm64
         
