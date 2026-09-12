@@ -74,7 +74,7 @@ export function addtab(dirty: boolean, name?: string, title?: string, tabbaseuri
     let tabinner = document.createElement("webview");
     tab.classList.add("tab");
     tab.id = name;
-    tabinner.setAttribute("preload", "webview-preload.js");
+    tabinner.setAttribute("preload", "webview-preload.cjs");
     tabinner.setAttribute("style", "width:100%;height:100%");
     tabinner.setAttribute("webpreferences", "nativeWindowOpen=true;");
     tabinner.setAttribute("allowpopups", "true");

@@ -13,20 +13,20 @@ if (localStorage.getItem("injectVencord") == "true") injectVencord.setAttribute(
 if (localStorage.getItem("injectUTE") == "true") injectUTE.setAttribute("checked", "true");
 
 //reset the preloader script
-fs.writeFileSync(path.resolve(__dirname, "webview-preload.js"), 'window.ipcRenderer = require("electron").ipcRenderer;', "utf8");
+fs.writeFileSync(path.resolve(__dirname, "webview-preload.cjs"), 'window.ipcRenderer = require("electron").ipcRenderer;', "utf8");
 
 if (injectVencord.checked) {
     fs.appendFileSync(
-        path.resolve(__dirname, "webview-preload.js"),
+        path.resolve(__dirname, "webview-preload.cjs"),
         `
-		Object.defineProperty(window,"armcord", {get: () => {return {version:" <--- NOT Armcord, **Web** via [Third-party Client](https://github.com/craftxbox/dtabs) (cc. <@496398139050295311>)\\n"}}});
-		`,
+		Object.defineProperty(window,"legcord", {get: () => {return {version:" <--- NOT Legcord, **Web** via [Third-party Client](https://github.com/craftxbox/dtabs) (cc. <@496398139050295311>)\\n"}}});
+		`, // TODO figure out if vencord would agree to implement a project agnostic way of declaring ourselves
         "utf8"
     );
     instance.get("https://cdn.jsdelivr.net/gh/Vencord/builds@main/browser.js").then(function (response) {
-        fs.appendFileSync(path.resolve(__dirname, "webview-preload.js"), response.data, "utf8");
+        fs.appendFileSync(path.resolve(__dirname, "webview-preload.cjs"), response.data, "utf8");
         fs.appendFileSync(
-            path.resolve(__dirname, "webview-preload.js"),
+            path.resolve(__dirname, "webview-preload.cjs"),
             'Object.defineProperty(window, "Vencord", { get: () => Vencord });window.Vencord.Settings.plugins.MessageEventsAPI.enabled = true;',
             "utf8"
         );
@@ -40,9 +40,9 @@ if (injectUTE.checked && !injectVencord.checked) {
     instance
         .get("https://transfur.science/od63k1i1") // <!-- TODO replace this with a versioned & pinned URL to prevent supply chain attacks -->
         .then(function (response) {
-            fs.appendFileSync(path.resolve(__dirname, "webview-preload.js"), response.data, "utf8");
+            fs.appendFileSync(path.resolve(__dirname, "webview-preload.cjs"), response.data, "utf8");
             fs.appendFileSync(
-                path.resolve(__dirname, "webview-preload.js"),
+                path.resolve(__dirname, "webview-preload.cjs"),
                 `
 				Object.defineProperty(window, "uteTransitionTo", { get: () => WEBPACK_GRABBER.findByCode("transitionTo -") });
 				Object.defineProperty(window, "uteMsgActions", { get: () => WEBPACK_GRABBER.findByProps("editMessage") });
@@ -55,7 +55,7 @@ if (injectUTE.checked && !injectVencord.checked) {
         });
 } else if (injectUTE.checked && injectVencord.checked) {
     fs.appendFileSync(
-        path.resolve(__dirname, "webview-preload.js"),
+        path.resolve(__dirname, "webview-preload.cjs"),
         `
 			/* webpackgrabber and vencord do not mix so we have to recreate the api with vencord apis instead */
 			Object.defineProperty(window, "uteTransitionTo", { get: () => Vencord.Webpack.Common.NavigationRouter.transitionTo });
