@@ -1,9 +1,12 @@
-const { app, BrowserWindow, session, shell, dialog, protocol } = require('electron')
-const fs = require("fs");
-const path = require("path");
-require('@electron/remote/main').initialize()
+import { app, BrowserWindow, session, shell, dialog, protocol } from 'electron';
+import fs from 'fs';
+import path from 'path';
+import remote from '@electron/remote/main/index.js';
+remote.initialize();
 
-const version = 7;
+const __dirname = path.resolve();
+
+const version = 8;
 
 let mainWindow
 
@@ -53,7 +56,7 @@ function createWindow() {
   }
   mainWindow.webContents.setUserAgent(`DTabs-mainjs/${version} Electron/${process.versions.electron} Chrome/${process.versions.chrome} Node/${process.versions.node} v8/${process.versions.v8}`);
   mainWindow.loadFile("index.html")
-  require("@electron/remote/main").enable(mainWindow.webContents);
+  remote.enable(mainWindow.webContents);
 }
 
 app.on('ready', createWindow)
