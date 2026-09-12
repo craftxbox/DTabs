@@ -31,37 +31,47 @@ jobs:
     - run: sudo apt-get update
     - run: sudo apt-get install -y wine64 
     
-    - run: npm run build
-    - run: ./ci.sh
-    - run: npx @electron/packager build --platform win32 --arch x64 --icon './dtabs.ico'
-    - run: npx @electron/packager build --platform darwin --arch x64 --icon './dtabs.icns'
-    - run: npx @electron/packager build --platform darwin --arch arm64 --icon './dtabs.icns'
-    - run: npx @electron/packager build --platform linux --arch x64 --icon './dtabs.ico'
-    - run: npx @electron/packager build --platform linux --arch arm64 --icon './dtabs.ico'
+    - run: npm run package all
     
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4
+    - name: Upload Windows amd64
+      uses: actions/upload-artifact@v7
       with:
         name: DTabs_windows_x64_${{github.ref_name}}_${{github.sha}}
         path: ./DTabs-win32-x64
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4
+        if-no-files-found: error
+
+    - name: Upload Windows arm64
+      uses: actions/upload-artifact@v7
+      with:
+        name: DTabs_windows_arm64_${{github.ref_name}}_${{github.sha}}
+        path: ./DTabs-win32-arm64
+        if-no-files-found: error
+
+    - name: Upload Mac amd64
+      uses: actions/upload-artifact@v7
       with:
         name: DTabs_macos_x64_${{github.ref_name}}_${{github.sha}}
         path: ./DTabs-darwin-x64
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4
+        if-no-files-found: error
+
+    - name: Upload Mac arm64
+      uses: actions/upload-artifact@v7
       with:
-        name: DTabs_macos_arm_${{github.ref_name}}_${{github.sha}}
+        name: DTabs_macos_arm64_${{github.ref_name}}_${{github.sha}}
         path: ./DTabs-darwin-arm64
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4
+        if-no-files-found: error
+
+    - name: Upload Linux amd64
+      uses: actions/upload-artifact@v7
       with:
         name: DTabs_linux_x86_${{github.ref_name}}_${{github.sha}}
         path: ./DTabs-linux-x64
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4
+        if-no-files-found: error
+
+    - name: Upload Linux arm64
+      uses: actions/upload-artifact@v7
       with:
         name: DTabs_linux_arm_${{github.ref_name}}_${{github.sha}}
         path: ./DTabs-linux-arm64
+        if-no-files-found: error
         

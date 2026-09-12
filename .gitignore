@@ -2,6 +2,8 @@ node_modules
 out
 DTabs-*
 webview-preload.js
+webview-preload.cjs
 dist/*
+build
 !dist/index.packed.js
 !dist/index.packed.js.map

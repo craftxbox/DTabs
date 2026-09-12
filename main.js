@@ -8,6 +8,7 @@ const version = 7;
 let mainWindow
 
 function createWindow() {
+  const linuxIcon = process.platform === 'linux' ? path.resolve(__dirname, 'icons/dtabs.png') : undefined;
   mainWindow = new BrowserWindow({
     frame: false,
     webPreferences: {
@@ -17,7 +18,9 @@ function createWindow() {
       webviewTag: true,
       session: session.defaultSession,
       nativeWindowOpen: true
-    }
+    },
+    roundedCorners: false,
+    icon: linuxIcon
   })
   mainWindow.on('closed', function () {
     mainWindow = null
