@@ -142,6 +142,8 @@ function domReadyListener(tab: HTMLDivElement, tabbutton: HTMLDivElement, dirty:
 
     let webContents = getWebContents(tabinner) as Electron.WebContents;
 
+    webContents.setWebRTCIPHandlingPolicy("default_public_and_private_interfaces")
+
     webContents.session.webRequest.onBeforeSendHeaders({ urls: [tabbaseuri + "/api/v*/users/@me/*"] }, (details, callback) => {
         if (!details.requestHeaders["Authorization"]) {
             console.log("Weird users/@me request didnt have an auth header.");
