@@ -59,10 +59,12 @@ export function addtab(dirty: boolean, name?: string, title?: string, tabbaseuri
     let tabs = tabButtons.children.length;
     name = name != null ? name : "tab" + (tabs + 1);
 
-    tabbutton.classList.add("titlebutton", "titletab", "title" + name);
+    tabbutton.classList.add("titlebutton", "titletab");
+    tabbutton.id = "title" + name;
 
-    tabbutton.addEventListener("click", () => {
-        activetab(name);
+    tabbutton.addEventListener("click", (event) => {
+        const element = event.target as HTMLElement;
+        activetab(element.id.replace("title", ""));
     });
 
     tabbutton.textContent = title != null ? title : "Tab #" + (tabs + 1);
@@ -71,7 +73,6 @@ export function addtab(dirty: boolean, name?: string, title?: string, tabbaseuri
     let tab = document.createElement("div");
     let tabinner = document.createElement("webview");
     tab.classList.add("tab");
-    tab.classList.add(name);
     tab.id = name;
     tabinner.setAttribute("preload", "webview-preload.js");
     tabinner.setAttribute("style", "width:100%;height:100%");
@@ -116,8 +117,8 @@ $("#addtab")?.addEventListener("click", () => {
 });
 
 export function activetab(id: string): void {
-    let targetTab = $("." + id) as HTMLDivElement;
-    let targetTabButton = $(".title" + id) as HTMLDivElement;
+    let targetTab = $("#" + id) as HTMLDivElement;
+    let targetTabButton = $("#title" + id) as HTMLDivElement;
 
     if (!targetTab || !targetTabButton) {
         console.error(`Tried to activate tab with id ${id}, but it did not exist.`);
@@ -148,13 +149,9 @@ function domReadyListener(tab: HTMLDivElement, tabbutton: HTMLDivElement, dirty:
             return;
         }
         if (!dirty && name.startsWith("tab")) {
-            tabbutton.classList.remove("title" + name);
-            tab.classList.remove(name);
             name = "t" + atob(details.requestHeaders["Authorization"].split(".")[0]);
             tab.id = name;
-            tabbutton.classList.add("title" + name);
-            tabbutton.setAttribute("onclick", "activetab('" + name + "')");
-            tab.classList.add(name);
+            tabbutton.id = "title" + name;
             tabinner.setAttribute("partition", "persist:" + name);
             tabtokens[name] = { title: name, token: "", baseuri: tabbaseuri };
         }

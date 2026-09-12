@@ -21,7 +21,7 @@ export function showContext(e: MouseEvent, tabName: string) {
 }
 
 function ctxinspect() {
-    var webview = $("." + tabContext + " webview") as Electron.WebviewTag;
+    var webview = $("#" + tabContext + " webview") as Electron.WebviewTag;
     webview.openDevTools();
 }
 
@@ -34,7 +34,7 @@ function ctxdelete() {
 $("#ctxdelete")?.addEventListener("click", ctxdelete);
 
 function ctxreload() {
-    var webview = $("." + tabContext + " webview") as Electron.WebviewTag;
+    var webview = $("#" + tabContext + " webview") as Electron.WebviewTag;
     webview.reload();
 }
 
@@ -46,7 +46,7 @@ const tokenChangeDialog = $(".tokenchange") as HTMLDivElement;
 
 function ctxrename(postrename = false) {
     if (postrename) {
-        let tabButton = $(`.titlebutton.title` + tabContext) as HTMLDivElement;
+        let tabButton = $(`.titlebutton#title` + tabContext) as HTMLDivElement;
 
         tabtokens[tabContext].title = ctxrenameinput.value;
         tabButton.textContent = tabtokens[tabContext].title;

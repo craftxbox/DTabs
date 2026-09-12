@@ -123,14 +123,14 @@ export function deletetab(tab?: string) {
     var tabId = tab || tabselect.value;
     delete tabtokens[tabId.replace("title", "")];
 
-    let webview = $("." + tabId.replace("title", "") + " webview") as Electron.WebviewTag;
+    let webview = $("#" + tabId.replace("title", "") + " webview") as Electron.WebviewTag;
     let partition = webview.getAttribute("partition") || tabId.replace("title", "");
 
     session.fromPartition(partition).clearStorageData();
 
-    $("." + tabId)?.remove();
+    $("#" + tabId)?.remove();
 
-    $(".tab." + tabId.replace("title", ""))?.remove();
+    $(".tab#" + tabId.replace("title", ""))?.remove();
 
     $(`.titlebutton.title${tabId.replace("title", "")}`)?.remove();
 
