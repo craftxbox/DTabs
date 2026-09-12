@@ -40,8 +40,11 @@ function ctxreload() {
 
 $("#ctxreload")?.addEventListener("click", ctxreload);
 
+//TODO create this dynamically with domfragment... probably all of the menu stuff should be redone with domfragment
+
 const ctxrenameinput = $("#ctxrenameinput") as HTMLInputElement;
-const ctxrenamedialogue = $("#ctxrename") as HTMLDivElement;
+const ctxrenamedialogue = $("#ctxrenamebox") as HTMLDivElement;
+const ctxrenamesubmit = $("#ctxrenamesubmit") as HTMLDivElement;
 const tokenChangeDialog = $(".tokenchange") as HTMLDivElement;
 
 function ctxrename(postrename = false) {
@@ -58,6 +61,9 @@ function ctxrename(postrename = false) {
     ctxrenameinput.value = tabtokens[tabContext].title;
     ctxrenamedialogue.classList.add("active");
     tokenChangeDialog.classList.add("active");
+    ctxrenamesubmit.addEventListener("click", () => {
+        ctxrename(true);
+    });
 }
 
 $("#ctxrename")?.addEventListener("click", () => {
