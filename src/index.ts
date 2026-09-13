@@ -13,6 +13,7 @@ import { updatecheck } from "./update.js";
 import { platformSpecificUserAgent } from "./userAgent.js";
 import { $, getWebContents } from "./util.js";
 import "./version.js";
+import "./screenshare/screenshare.js";
 
 const mainBody = $(".mainbody") as HTMLDivElement;
 const tabButtons = $("#tabbuttons") as HTMLDivElement;
