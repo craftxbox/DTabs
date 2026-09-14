@@ -59,7 +59,7 @@ export function registerCustomHandler(contents: Electron.WebContents): void {
                         webPreferences: {
                             sandbox: false,
                             spellcheck: false,
-                            preload: path.join(__dirname, "preload.mjs")
+                            preload: path.join(__dirname, "dist", "preload.mjs")
                         }
                     });
                     ipcMain.once("selectScreenshareSource", (_event, id: string, name: string, audio: boolean) => {
@@ -89,11 +89,11 @@ export function registerCustomHandler(contents: Electron.WebContents): void {
     });
 }
 
-const preloadMjsPath = path.join(__dirname, "preload.mjs");
+const preloadMjsPath = path.join(__dirname, "dist", "preload.mjs");
 const preloadMjsContent = preloadMjs
     .toString()
     .replace("async function preloadMjs() {", "")
-    .replace(`const { ipcRenderer } = await import("electron");`, "import { ipcRenderer } from 'electron';")
+    .replace(`const { ipcRenderer } = await import('electron');`, "import { ipcRenderer } from 'electron';")
     .slice(0, -1);
 
 {

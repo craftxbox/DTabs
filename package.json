@@ -7,7 +7,7 @@
     "version": "1.0.0",
     "author": "craftxbox",
     "scripts": {
-        "dist": "npx tsc && npx rollup -c",
+        "dist": "npx tsc && npx rollup -c rollup.config.js",
         "start": "npm run dist && electron .",
         "start-x11": "npm run dist && DISPLAY=:0 electron --ozone-platform=x11 .",
         "build": "npm run dist && node scripts/build.js",
