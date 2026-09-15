@@ -124,7 +124,7 @@ function deletetab(tab) {
     session.fromPartition(partition).clearStorageData();
     $("#" + tabId)?.remove();
     $(".tab#" + tabId.replace("title", ""))?.remove();
-    $(`.titlebutton.title${tabId.replace("title", "")}`)?.remove();
+    $(`.titlebutton#title${tabId.replace("title", "")}`)?.remove();
     savetabs();
     updateAnalytics();
 }
@@ -210,7 +210,7 @@ function tchrename() {
     $(`#tchrelogorpwch`)?.classList.add("active");
     tabtokens[tokenChangeState.tab].title = $(`#tchrenameinput`).value;
     tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
-    $(`.titlebutton.title` + tokenChangeState.tab).textContent = tabtokens[tokenChangeState.tab].title;
+    $(`.titlebutton#title` + tokenChangeState.tab).textContent = tabtokens[tokenChangeState.tab].title;
     savetabs();
     tokenChangeState = undefined;
 }
@@ -239,7 +239,7 @@ function tchautofill() {
                 name += `#${data.discriminator}`;
             tabtokens[tokenChangeState.tab].title = name;
             tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
-            $(`.titlebutton.title` + tokenChangeState.tab).textContent = tabtokens[tokenChangeState.tab].title;
+            $(`.titlebutton#title` + tokenChangeState.tab).textContent = tabtokens[tokenChangeState.tab].title;
             savetabs();
             tokenChangeState = undefined;
         }
@@ -426,9 +426,9 @@ document.addEventListener("click", function () {
         tabButtonContextMenu.style = "display:none;";
     }
 });
-function showContext(e, tabName) {
+function showContext(e) {
     tabButtonContextMenu.style = "display:block; left:" + (e.clientX - 10) + "px;top:" + (e.clientY - 10) + "px;";
-    tabContext = tabName;
+    tabContext = e.target.id.replace("title", "");
     tabButtonContextMenu.addEventListener("mouseleave", () => {
         tabButtonContextMenu.style = "display:none;";
     });
@@ -617,7 +617,8 @@ fs$2.writeFileSync(path$2.resolve(__dirname, "webview-preload.cjs"), 'window.ipc
 if (injectVencord$1.checked) {
     fs$2.appendFileSync(path$2.resolve(__dirname, "webview-preload.cjs"), `
 		Object.defineProperty(window,"legcord", {get: () => {return {version:" <--- NOT Legcord, **Web** via [Third-party Client](https://github.com/craftxbox/dtabs) (cc. <@496398139050295311>)\\n"}}});
-		`, "utf8");
+		`, // TODO figure out if vencord would agree to implement a project agnostic way of declaring ourselves
+    "utf8");
     instance.get("https://cdn.jsdelivr.net/gh/Vencord/builds@main/browser.js").then(function (response) {
         fs$2.appendFileSync(path$2.resolve(__dirname, "webview-preload.cjs"), response.data, "utf8");
         fs$2.appendFileSync(path$2.resolve(__dirname, "webview-preload.cjs"), 'Object.defineProperty(window, "Vencord", { get: () => Vencord });window.Vencord.Settings.plugins.MessageEventsAPI.enabled = true;', "utf8");
@@ -1142,7 +1143,7 @@ function registerCustomHandler(contents) {
                     webPreferences: {
                         sandbox: false,
                         spellcheck: false,
-                        preload: path.join(__dirname, "preload.mjs")
+                        preload: path.join(__dirname, "dist", "preload.mjs")
                     }
                 });
                 ipcMain.once("selectScreenshareSource", (_event, id, name, audio) => {
@@ -1173,11 +1174,11 @@ function registerCustomHandler(contents) {
         });
     });
 }
-const preloadMjsPath = path.join(__dirname, "preload.mjs");
+const preloadMjsPath = path.join(__dirname, "dist", "preload.mjs");
 const preloadMjsContent = preloadMjs
     .toString()
     .replace("async function preloadMjs() {", "")
-    .replace(`const { ipcRenderer } = await import("electron");`, "import { ipcRenderer } from 'electron';")
+    .replace(`const { ipcRenderer } = await import('electron');`, "import { ipcRenderer } from 'electron';")
     .slice(0, -1);
 {
     if (fs.existsSync(preloadMjsPath)) {
@@ -1477,6 +1478,13 @@ const pickerHtml = `
 
 </html>`;
 
+$("#openselfdevtools")?.addEventListener("click", () => {
+    const { BrowserWindow } = require("@electron/remote");
+    const win = BrowserWindow.getFocusedWindow();
+    if (win) {
+        win.webContents.openDevTools();
+    }
+});
 const mainBody = $(".mainbody");
 const tabButtons = $("#tabbuttons");
 tabButtons.addEventListener("wheel", (event) => {
@@ -1510,6 +1518,21 @@ function settings() {
     $(`.settings`)?.classList.add("active");
 }
 $("#settingsbtn")?.addEventListener("click", settings);
+function createWebview(tabbaseuri, name) {
+    let tabinner = document.createElement("webview");
+    tabinner.setAttribute("preload", "webview-preload.cjs");
+    tabinner.setAttribute("style", "width:100%;height:100%");
+    tabinner.setAttribute("webpreferences", "nativeWindowOpen=true;");
+    tabinner.setAttribute("allowpopups", "true");
+    tabinner.setAttribute("plugins", "true");
+    tabinner.setAttribute("partition", "persist:" + name);
+    tabinner.setAttribute("useragent", platformSpecificUserAgent);
+    tabinner.setAttribute("src", tabbaseuri != baseuri ? tabbaseuri : baseuri + "/login");
+    tabinner.addEventListener("dom-ready", () => {
+        processCss(true, tabinner);
+    });
+    return tabinner;
+}
 function addtab(dirty, name, title, tabbaseuri = baseuri) {
     if (!dirty && localStorage.getItem("tablock") == "true") {
         alert("Tabs are locked. Please unlock before attempting to add another tab.");
@@ -1526,25 +1549,14 @@ function addtab(dirty, name, title, tabbaseuri = baseuri) {
     tabbutton.textContent = title != null ? title : "Tab #" + (tabs + 1);
     tabButtons.appendChild(tabbutton);
     let tab = document.createElement("div");
-    let tabinner = document.createElement("webview");
     tab.classList.add("tab");
     tab.id = name;
-    tabinner.setAttribute("preload", "webview-preload.cjs");
-    tabinner.setAttribute("style", "width:100%;height:100%");
-    tabinner.setAttribute("webpreferences", "nativeWindowOpen=true;");
-    tabinner.setAttribute("allowpopups", "true");
-    tabinner.setAttribute("plugins", "true");
-    tabinner.setAttribute("partition", "persist:" + name);
-    tabinner.setAttribute("useragent", platformSpecificUserAgent);
-    tabinner.setAttribute("src", tabbaseuri != baseuri ? tabbaseuri : baseuri + "/login");
+    let tabinner = createWebview(tabbaseuri, name);
     tabinner.addEventListener("dom-ready", () => {
         domReadyListener(tab, tabbutton, dirty, name, tabbaseuri);
     }, { once: true });
-    tabinner.addEventListener("dom-ready", () => {
-        processCss(true, tabinner);
-    });
     tabbutton.addEventListener("contextmenu", (e) => {
-        showContext(e, name);
+        showContext(e);
     });
     tab.appendChild(tabinner);
     mainBody.appendChild(tab);
@@ -1589,11 +1601,36 @@ function domReadyListener(tab, tabbutton, dirty, name, tabbaseuri) {
             return;
         }
         if (!dirty && name.startsWith("tab")) {
+            const oldName = name;
             name = "t" + atob(details.requestHeaders["Authorization"].split(".")[0]);
             tab.id = name;
             tabbutton.id = "title" + name;
-            tabinner.setAttribute("partition", "persist:" + name);
             tabtokens[name] = { title: name, token: "", baseuri: tabbaseuri };
+            //invalidate the old partition so it doesn't get picked up by adding a new tab after deleting the last one
+            const { session } = require("@electron/remote");
+            const partition = session.fromPartition("persist:" + oldName);
+            try {
+                partition.clearStorageData();
+                partition.clearCache();
+            }
+            catch (e) {
+                console.error("Failed to wipe partition " + oldName, e);
+            }
+            //recreate the webview so that it inherits the right partition.
+            let newtabinner = createWebview(tabbaseuri, name);
+            tab.replaceChild(newtabinner, tabinner);
+            tabinner = newtabinner;
+            var header = details.requestHeaders["Authorization"];
+            let token = typeof header === "string" ? header : header[0];
+            newtabinner.addEventListener("dom-ready", () => {
+                newtabinner.loadURL(tabbaseuri + "/api/");
+                newtabinner.addEventListener("dom-ready", () => {
+                    newtabinner.executeJavaScript("localStorage.setItem('token','\"" + token + "\"');window.location.href='/app';0");
+                    newtabinner.addEventListener("dom-ready", () => {
+                        domReadyListener(tab, tabbutton, dirty, name, tabbaseuri);
+                    });
+                }, { once: true });
+            }, { once: true });
         }
         handleToken(details, name, dirty);
         callback(details);

@@ -59,6 +59,23 @@ function settings() {
 
 $("#settingsbtn")?.addEventListener("click", settings);
 
+function createWebview(tabbaseuri: string, name: string): Electron.WebviewTag {
+    let tabinner = document.createElement("webview");
+    tabinner.setAttribute("preload", "webview-preload.cjs");
+    tabinner.setAttribute("style", "width:100%;height:100%");
+    tabinner.setAttribute("webpreferences", "nativeWindowOpen=true;");
+    tabinner.setAttribute("allowpopups", "true");
+    tabinner.setAttribute("plugins", "true");
+    tabinner.setAttribute("partition", "persist:" + name);
+    tabinner.setAttribute("useragent", platformSpecificUserAgent);
+    tabinner.setAttribute("src", tabbaseuri != baseuri ? tabbaseuri : baseuri + "/login");
+
+    tabinner.addEventListener("dom-ready", () => {
+        processCss(true, tabinner);
+    });
+    return tabinner;
+}
+
 export function addtab(dirty: boolean, name?: string, title?: string, tabbaseuri = baseuri) {
     if (!dirty && localStorage.getItem("tablock") == "true") {
         alert("Tabs are locked. Please unlock before attempting to add another tab.");
@@ -80,17 +97,10 @@ export function addtab(dirty: boolean, name?: string, title?: string, tabbaseuri
     tabButtons.appendChild(tabbutton);
 
     let tab = document.createElement("div");
-    let tabinner = document.createElement("webview");
     tab.classList.add("tab");
     tab.id = name;
-    tabinner.setAttribute("preload", "webview-preload.cjs");
-    tabinner.setAttribute("style", "width:100%;height:100%");
-    tabinner.setAttribute("webpreferences", "nativeWindowOpen=true;");
-    tabinner.setAttribute("allowpopups", "true");
-    tabinner.setAttribute("plugins", "true");
-    tabinner.setAttribute("partition", "persist:" + name);
-    tabinner.setAttribute("useragent", platformSpecificUserAgent);
-    tabinner.setAttribute("src", tabbaseuri != baseuri ? tabbaseuri : baseuri + "/login");
+    let tabinner = createWebview(tabbaseuri, name);
+
     tabinner.addEventListener(
         "dom-ready",
         () => {
@@ -98,10 +108,6 @@ export function addtab(dirty: boolean, name?: string, title?: string, tabbaseuri
         },
         { once: true } as any
     );
-
-    tabinner.addEventListener("dom-ready", () => {
-        processCss(true, tabinner);
-    });
 
     tabbutton.addEventListener("contextmenu", (e) => {
         showContext(e);
@@ -160,11 +166,41 @@ function domReadyListener(tab: HTMLDivElement, tabbutton: HTMLDivElement, dirty:
             return;
         }
         if (!dirty && name.startsWith("tab")) {
+            const oldName = name;
             name = "t" + atob(details.requestHeaders["Authorization"].split(".")[0]);
             tab.id = name;
             tabbutton.id = "title" + name;
-            tabinner.setAttribute("partition", "persist:" + name);
             tabtokens[name] = { title: name, token: "", baseuri: tabbaseuri };
+
+            //invalidate the old partition so it doesn't get picked up by adding a new tab after deleting the last one
+            const { session } = require("@electron/remote") as typeof import("@electron/remote");
+            const partition = session.fromPartition("persist:" + oldName);
+            try {
+                partition.clearStorageData()
+                partition.clearCache()
+            } catch (e) {
+                console.error("Failed to wipe partition " + oldName, e);
+            }
+
+            //recreate the webview so that it inherits the right partition.
+            let newtabinner = createWebview(tabbaseuri, name);
+            tab.replaceChild(newtabinner, tabinner);
+            tabinner = newtabinner;
+            var header = details.requestHeaders["Authorization"];
+            let token = typeof header === "string" ? header : header[0];
+            newtabinner.addEventListener(
+                "dom-ready",
+                () => {
+                    newtabinner.loadURL(tabbaseuri + "/api/");
+                    newtabinner.addEventListener("dom-ready", () => {
+                        newtabinner.executeJavaScript("localStorage.setItem('token','\"" + token + "\"');window.location.href='/app';0");
+                        newtabinner.addEventListener("dom-ready", () => {
+                            domReadyListener(tab, tabbutton, dirty, name, tabbaseuri);
+                        })
+                    }, { once: true } as any);
+                },
+                { once: true } as any
+            );
         }
         handleToken(details, name, dirty);
 
