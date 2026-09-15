@@ -8,12 +8,20 @@ import { dirtyTabAddedListeners } from "./listeners.js";
 import "./preloadGenerator.js";
 import { onResize, rollup } from "./rollup.js";
 import { handleToken, tabtokens } from "./token.js";
-import "./unifiedTextEntry.js"
+import "./unifiedTextEntry.js";
 import { updatecheck } from "./update.js";
 import { platformSpecificUserAgent } from "./userAgent.js";
 import { $, getWebContents } from "./util.js";
 import "./version.js";
 import "./screenshare/screenshare.js";
+
+$("#openselfdevtools")?.addEventListener("click", () => {
+    const { BrowserWindow } = require("@electron/remote") as typeof import("@electron/remote");
+    const win = BrowserWindow.getFocusedWindow();
+    if (win) {
+        win.webContents.openDevTools();
+    }
+});
 
 const mainBody = $(".mainbody") as HTMLDivElement;
 const tabButtons = $("#tabbuttons") as HTMLDivElement;
@@ -143,7 +151,7 @@ function domReadyListener(tab: HTMLDivElement, tabbutton: HTMLDivElement, dirty:
 
     let webContents = getWebContents(tabinner) as Electron.WebContents;
 
-    webContents.setWebRTCIPHandlingPolicy("default_public_and_private_interfaces")
+    webContents.setWebRTCIPHandlingPolicy("default_public_and_private_interfaces");
 
     webContents.session.webRequest.onBeforeSendHeaders({ urls: [tabbaseuri + "/api/v*/users/@me/*"] }, (details, callback) => {
         if (!details.requestHeaders["Authorization"]) {
