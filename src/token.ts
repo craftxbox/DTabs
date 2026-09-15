@@ -132,7 +132,7 @@ export function deletetab(tab?: string) {
 
     $(".tab#" + tabId.replace("title", ""))?.remove();
 
-    $(`.titlebutton.title${tabId.replace("title", "")}`)?.remove();
+    $(`.titlebutton#title${tabId.replace("title", "")}`)?.remove();
 
     savetabs();
     updateAnalytics();
@@ -230,7 +230,7 @@ function tchrename() {
 
     tabtokens[tokenChangeState.tab].title = ($(`#tchrenameinput`) as HTMLInputElement).value;
     tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
-    ($(`.titlebutton.title` + tokenChangeState.tab) as HTMLElement).textContent = tabtokens[tokenChangeState.tab].title;
+    ($(`.titlebutton#title` + tokenChangeState.tab) as HTMLElement).textContent = tabtokens[tokenChangeState.tab].title;
     savetabs();
     tokenChangeState = undefined;
 }
@@ -259,7 +259,7 @@ function tchautofill() {
                 if (data.discriminator != "0") name += `#${data.discriminator}`;
                 tabtokens[tokenChangeState.tab].title = name;
                 tabtokens[tokenChangeState.tab].token = tokenChangeState.newToken;
-                ($(`.titlebutton.title` + tokenChangeState.tab) as HTMLElement).textContent = tabtokens[tokenChangeState.tab].title;
+                ($(`.titlebutton#title` + tokenChangeState.tab) as HTMLElement).textContent = tabtokens[tokenChangeState.tab].title;
                 savetabs();
                 tokenChangeState = undefined;
             } else {
