@@ -11,9 +11,9 @@ document.addEventListener("click", function () {
     }
 });
 
-export function showContext(e: MouseEvent, tabName: string) {
+export function showContext(e: MouseEvent) {
     tabButtonContextMenu.style = "display:block; left:" + (e.clientX - 10) + "px;top:" + (e.clientY - 10) + "px;";
-    tabContext = tabName;
+    tabContext = (e.target as HTMLDivElement).id.replace("title", "");
     tabButtonContextMenu.addEventListener("mouseleave", () => {
         tabButtonContextMenu.style = "display:none;";
     });

@@ -96,7 +96,7 @@ export function addtab(dirty: boolean, name?: string, title?: string, tabbaseuri
     });
 
     tabbutton.addEventListener("contextmenu", (e) => {
-        showContext(e, name);
+        showContext(e);
     });
 
     tab.appendChild(tabinner);
