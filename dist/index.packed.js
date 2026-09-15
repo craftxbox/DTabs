@@ -714,7 +714,7 @@ const injectVencord = $(`#injectVencord`);
 const experimentalSection = $(`#experimental`);
 if (injectUTE.checked) {
     dirtyTabAddedListeners.push((tab) => {
-        let tabView = $(`.${tab} webview`);
+        let tabView = $(`#${tab} webview`);
         if (injectVencord.checked) {
             tabView.addEventListener("dom-ready", function inject() {
                 tabView.executeJavaScript(`
@@ -812,7 +812,7 @@ if (injectUTE.checked) {
         });
     });
     async function handleUteMatch(_tab, channelId, content, extra, proxyMatch) {
-        let proxyMatchWebview = $(`.${proxyMatch} webview`);
+        let proxyMatchWebview = $(`#${proxyMatch} webview`);
         let activeTabWebview = $(`.tab.active webview`);
         proxyMatchWebview
             .executeJavaScript(`

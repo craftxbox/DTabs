@@ -11,7 +11,7 @@ const experimentalSection = $(`#experimental`) as HTMLDivElement;
 
 if (injectUTE.checked) {
     dirtyTabAddedListeners.push((tab) => {
-        let tabView = $(`.${tab} webview`) as Electron.WebviewTag;
+        let tabView = $(`#${tab} webview`) as Electron.WebviewTag;
         if (injectVencord.checked) {
             tabView.addEventListener("dom-ready", function inject() {
                 tabView.executeJavaScript(`
@@ -108,7 +108,7 @@ if (injectUTE.checked) {
     });
 
     async function handleUteMatch(_tab: string, channelId:string , content:{content:string}, extra: object, proxyMatch: string) {
-        let proxyMatchWebview = $(`.${proxyMatch} webview`) as Electron.WebviewTag;
+        let proxyMatchWebview = $(`#${proxyMatch} webview`) as Electron.WebviewTag;
         let activeTabWebview = $(`.tab.active webview`) as Electron.WebviewTag;
         proxyMatchWebview
             .executeJavaScript(
