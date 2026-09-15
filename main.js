@@ -4,8 +4,7 @@ import path from 'path';
 import remote from '@electron/remote/main/index.js';
 remote.initialize();
 
-const __dirname = path.resolve();
-
+const __dirname = app.getAppPath();
 const version = 8;
 
 let mainWindow
